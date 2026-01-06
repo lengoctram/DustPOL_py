@@ -45,17 +45,25 @@ Manuals and GUI (not yet updated)
   - conda install python=3.12, numpy, matplotlib, ...
 
 1- Download the source files
+
 - Clone: git clone https://github.com/lengoctram/DustPOL-py.git
 
 2- Go to the directory
+
 - cd DustPOL-py
 
 3- From the terminal, type
+
     recommended:  
+    
         make install
+    
     or
+    
         pip install .
+    
     or 
+    
         pip install -e .
 
 ## Authors
