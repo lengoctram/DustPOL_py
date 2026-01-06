@@ -27,6 +27,8 @@ Manuals and GUI (not yet updated)
 
 0- Silicon chip
   
+  make install
+  
   conda create -n DustPOL_py
   
   conda activate DustPOL_py
