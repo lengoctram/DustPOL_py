@@ -55,16 +55,16 @@ Manuals and GUI (not yet updated)
 
 3- From the terminal, type
 
-recommended
+  - recommended
     
         make install
     
-    - or
+  - or
     
         pip install .
-    
-    - or
-    
+
+  - or
+     
         pip install -e .
 
 ## Authors
