@@ -1,97 +1,59 @@
 ---
-title: "DustPOL_py: a numerical modeling for linear dust polarization"
+title: "DustPOL-py: a numerical modeling for linear dust polarization"
 ---
 
-<<<<<<< HEAD
 ## DustPOL-py - numerical modelling - v1.8
 DustPOL-py computes multi-wavelength polarization of starlight absorption and thermal dust emission based on:
 - Radiative Torque alignment (RAT-A)
 - Magnetically enhanced RAT (MRAT)
 - Radiative Torque Disruption (RAT-D)
-=======
-## DustPOL_py - numerical modelling - v1.6.1
-1- This numerical modelling calculates the multi-wavelength polarization degree of absorption and thermal dust emission 
-based on Radiative Torque alignment (RAT-A), Magnetically enhanced RAT (MRAT) and Radiative Torque Disruption (RAT-D).
->>>>>>> 4ad41379c3820edee126c92f21d13cd2afe0bd9c
+- Paramagnetic relaxation alignment (DG)
 
 Features
 - Polarization spectra for diffuse ISM, molecular clouds, dense cores, protostars (POS and LOS).
-- High-performance computation (ProcessPoolExecutor or joblib).
-- Flexible parameter overrides via code for fitting workflows.
-- Silicate, graphite, Astrodust and PAHs (and their combinations) compositions
-- Multiple size distribution: MRN, WD01, HD23
-- The routine will save the output files (wavelength and degree of polarization) for further analysis. 
 - Built-in analysis and plotting routines.
+- High-performance computation (ProcessPoolExecutor or joblib), with fallbacks.
+- Flexible parameter overrides via code for fitting workflows.
+- Multiple grain compositions: silicate, graphite, PAH and astrodust, and their combinations.
+- Multiple grain size distributions: MRN, WD01, HD23
 
-Manuals and GUI (a bit outdated)
+Manuals and GUI (not yet updated)
 - Docs: https://lengoctram.github.io/DustPOL-website/
 - Web GUI: https://dustpol-py.streamlit.app
 
+
 ## Installation
-** It is recommended to use a virtual environment to 
-prevent conflicts with existing Python packages. **
-For silicon chip:
+** It is recommended to use a virtual environment to prevent conflicts with existing Python packages. **
+0- Silicon chip
   conda create -n DustPOL_py
   conda activate DustPOL_py
   conda config --env --set subdir osx-arm64
   conda install python=3.12, numpy, matplotlib, ...
-
-For Intel chip
+0- Intel chip
   conda create -n DustPOL_py
   conda activate DustPOL_py
   conda config --env --set subdir osx-64
   conda install python=3.12, numpy, matplotlib, ...
 
-1- Download the source files from here
+1- Download the source files
+- Clone: git clone https://github.com/lengoctram/DustPOL-py.git
 
 2- Go to the directory
+- cd DustPOL-py
 
 3- From the terminal, type
-  In principle
-      make install
-
-<<<<<<< HEAD
-  Otherwise, try
-      pip install .
-  or
-      pip install -e .
-=======
-** It is recommended to use a virtual environment to prevent conflicts with existing Python packages. **
-For instance:
-     
-     conda create -n DustPOL_py
-     conda activate DustPOL_py
-     conda install python, numpy, matplotlib, ...
->>>>>>> 4ad41379c3820edee126c92f21d13cd2afe0bd9c
+    recommended:  
+        make install
+    or
+        pip install .
+    or 
+        pip install -e .
 
 ## Authors
 ```Le Ngoc Tram```, Hyeseung Lee, and Thiem Hoang
 
 ## Contributors
 Pham N. Diep, Nguyen B. Ngoc, Bao Truong, Ngan Lê
-
-## History:
-2025   : Tram incorporated the modelling for a starless and protostar
-2025   : Tram incorporated the DG alignment
-2025   : Tram modified the main routines for overriding the input parameters (useful for performing fitting)
-
-2025   : Tram optimised the model with cached memories 
-
-2025   : Tram added the PAHs composition
-
-2024   : Tram added the modulation for starless core and embedded high-performance-computation techniques
-
-2024   : Tram re-structured the DustPOL-py infractructure to python class object (modulation)
-
-2024   : Tram implemented a two-phase model: cold and warm dust layers along the LOS
-
-2023   : Tram optimized and improved the code to work with maximum grain size lower than the disruption size
-
-2022   : Thiem implemented MRAT in align.py to account for iron inclusions
-
-2020   : Tram improved Hyeseung's code
-
-2019   : Hyeseung modified the Dustpol Code from Thiem, adding RATD (maximum grain size is higher than the disruption size)
 
 ## Dependencies
 
@@ -109,12 +71,12 @@ Pham N. Diep, Nguyen B. Ngoc, Bao Truong, Ngan Lê
 
 7- Concurrency for parallelization
 
-8- Pands
+8- Pandas
 
 ## Bugs
-Please reach out to us at <nle@strw.leidenuniv.nl> or <nle@mpifr-bonn.mpg.de>
+Please reach out to us at <nle@strw.leidenuniv.nl>
 
-## macOS multiprocessing notes
+macOS multiprocessing notes
 - On macOS (Ventura/Sonoma), Python uses “spawn”. Interactive IPython/Jupyter sessions may fail with ProcessPoolExecutor due to __main__.__spec__=None.
 - Solutions:
   - Run scripts as modules (python examples/4-2-basic_model_protostar_POS.py) under a main guard.
@@ -130,7 +92,5 @@ Please reach out to us at <nle@strw.leidenuniv.nl> or <nle@mpifr-bonn.mpg.de>
 
 4- Lee et al. (2020) <https://ui.adsabs.harvard.edu/abs/2020ApJ...896...44L>
 
-
-
-
-
+## Special thanks
+L. Tram wishes to express his gratitude to Prof. Karl M. Menten and Dr. Yannick Giraud-Heraud, who have sadly passed away, for their support and encouragement.
