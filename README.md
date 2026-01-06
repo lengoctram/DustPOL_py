@@ -43,13 +43,15 @@ Manuals and GUI (not yet updated)
 
 1- Download the source files
 
-- Clone:
+  - Clone:
   
-  ```git clone https://github.com/lengoctram/DustPOL_py.git```
+    ```git clone https://github.com/lengoctram/DustPOL_py.git```
+
+  - Or Download directly from github
 
 2- Go to the directory
 
-  ```cd DustPOL_py-main```
+    ```cd DustPOL_py-main```
 
 3- From the terminal, type
 
