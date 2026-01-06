@@ -172,7 +172,7 @@ def get_Av(filename):
 	Av_=np.array(Av_ls)
 	Av_=np.array(list(dict.fromkeys(Av_))) ##de-duplicated values
 	if len(Av_)==1:
-		return float(Av_)
+		return float(Av_[0])
 	else:
 		return Av_
 
@@ -197,7 +197,7 @@ def get_NH(filename):
 	NH_=np.array(NH_ls)
 	NH_=np.array(list(dict.fromkeys(NH_))) ##de-duplicated values
 	if len(NH_)==1:
-		return float(NH_)
+		return float(NH_[0])
 	else:
 		return NH_
 
