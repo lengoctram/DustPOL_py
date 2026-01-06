@@ -2,29 +2,52 @@
 title: "DustPOL-py: a numerical modeling for linear dust polarization"
 ---
 
-## DustPOL-py - numerical modelling - v1.6.1
-1- This numerical modelling calculates the multi-wavelength polarization degree of absorption and thermal dust emission 
-based on Radiative Torque alignment (RAT-A), Magnetically enhanced RAT (MRAT) and Radiative Torque Disruption (RAT-D).
+## DustPOL-py - numerical modelling - v1.8
+DustPOL-py computes multi-wavelength polarization of starlight absorption and thermal dust emission based on:
+- Radiative Torque alignment (RAT-A)
+- Magnetically enhanced RAT (MRAT)
+- Radiative Torque Disruption (RAT-D)
 
-2- The routine will save the output files (wavelength and degree of polarization) for further analysis. A built-in routine for analysis is also provided.
+Features
+- Polarization spectra for diffuse ISM, molecular clouds, dense cores, protostars (POS and LOS).
+- High-performance computation (ProcessPoolExecutor or joblib).
+- Flexible parameter overrides via code for fitting workflows.
+- Silicate, graphite, Astrodust and PAHs (and their combinations) compositions
+- Multiple size distribution: MRN, WD01, HD23
+- The routine will save the output files (wavelength and degree of polarization) for further analysis. 
+- Built-in analysis and plotting routines.
 
-3- For the manuals and examples, please have a look at: <https://lengoctram.github.io/DustPOL-website/>
-
-4- For a quick look and investigation, please use a web-interface GUI: <https://dustpol-py.streamlit.app>
-
-5- The high-performance-computation techniques are embedded.
+Manuals and GUI (a bit outdated)
+- Docs: https://lengoctram.github.io/DustPOL-website/
+- Web GUI: https://dustpol-py.streamlit.app
 
 ## Installation
+** It is recommended to use a virtual environment to 
+prevent conflicts with existing Python packages. **
+For silicon chip:
+  conda create -n DustPOL_py
+  conda activate DustPOL_py
+  conda config --env --set subdir osx-arm64
+  conda install python=3.12, numpy, matplotlib, ...
+
+For Intel chip
+  conda create -n DustPOL_py
+  conda activate DustPOL_py
+  conda config --env --set subdir osx-64
+  conda install python=3.12, numpy, matplotlib, ...
 
 1- Download the source files from here
 
 2- Go to the directory
 
 3- From the terminal, type
- 
-      pip install -e .
+  In principle
+      make install
 
-** It is recommended to use a virtual environment to prevent conflicts with existing Python packages. **
+  Otherwise, try
+      pip install .
+  or
+      pip install -e .
 
 ## Authors
 ```Le Ngoc Tram```, Hyeseung Lee, and Thiem Hoang
@@ -32,23 +55,9 @@ based on Radiative Torque alignment (RAT-A), Magnetically enhanced RAT (MRAT) an
 ## Contributors
 Pham N. Diep, Nguyen B. Ngoc, Bao Truong, Ngan Lê
 
-## Features
-1- Current version is designed to predict the polarization spectrum for starlight and thermal
-
-2- diffuse ISM 
-
-3- molecular clouds and star-forming regions
-
-4- isolated dense cores (starless cores)
-
-## Upnext
-1- Globules/Pillars
-
-2- Protostars
-
-3- Protoplanetary disks
-
 ## History:
+2025   : Tram incorporated the modelling for a starless and protostar
+2025   : Tram incorporated the DG alignment
 2025   : Tram modified the main routines for overriding the input parameters (useful for performing fitting)
 
 2025   : Tram optimised the model with cached memories 
@@ -85,28 +94,28 @@ Pham N. Diep, Nguyen B. Ngoc, Bao Truong, Ngan Lê
 
 7- Concurrency for parallelization
 
+8- Pands
+
 ## Bugs
 Please reach out to us at <nle@strw.leidenuniv.nl> or <nle@mpifr-bonn.mpg.de>
 
-## More information, please read
+## macOS multiprocessing notes
+- On macOS (Ventura/Sonoma), Python uses “spawn”. Interactive IPython/Jupyter sessions may fail with ProcessPoolExecutor due to __main__.__spec__=None.
+- Solutions:
+  - Run scripts as modules (python examples/4-2-basic_model_protostar_POS.py) under a main guard.
+  - In interactive environments, the library can fallback to joblib backend='loky'.
 
-1- Lee et al. (2020) <https://ui.adsabs.harvard.edu/abs/2020ApJ...896...44L>
+## More information and citations
 
-2- Tram et al. (2021) <https://ui.adsabs.harvard.edu/abs/2021ApJ...906..115T>
+1- Tram et al. (2025) <https://www.aanda.org/articles/aa/pdf/2025/11/aa53917-25.pdf>
 
-3- Tram et al. (2024) <https://www.aanda.org/articles/aa/pdf/2024/09/aa50127-24.pdf>
+2- Tram et al. (2024) <https://www.aanda.org/articles/aa/pdf/2024/09/aa50127-24.pdf>
 
-## Citations
-If you use this code for your scientific projects, please cite
+3- Tram et al. (2021) <https://ui.adsabs.harvard.edu/abs/2021ApJ...906..115T>
 
-\bibitem[{{Lee} {et~al.}(2020){Lee}, {Hoang}, {Le}, \& {Cho}}]{2020ApJ...896...44L}
-{Lee}, H., {Hoang}, T., {Le}, N., \& {Cho}, J. 2020, \apj, 896, 44,
-  \dodoi{10.3847/1538-4357/ab8e33}
+4- Lee et al. (2020) <https://ui.adsabs.harvard.edu/abs/2020ApJ...896...44L>
 
-\bibitem[{{Tram} {et~al.}(2021{\natexlab{a}}){Tram}, {Hoang}, {Lee}, {Santos}, {Soam}, {Lesaffre}, {Gusdorf}, \& {Reach}}]{2021ApJ...906..115T}
-{Tram}, L.~N., {Hoang}, T., {Lee}, H., {et al.} 2021{\natexlab{a}}, \apj, 906,
-  115, \dodoi{10.3847/1538-4357/abc6fe}
-  
-\bibitem[{{Tram} {et~al.}(2024){Tram}, {Hoang}, {Wiesemeyer}, {Ristorcelli}, {Menten}, {Ngoc}, \& {Diep}}]{2024A&A...689A.290T}
-{Tram}, L.~N., {Hoang}, T., {Wiesemeyer}, H., {et al.} 2024, \aa, 689, A290, \dodoi{10.1051/0004-6361/202450127}
+
+
+
 

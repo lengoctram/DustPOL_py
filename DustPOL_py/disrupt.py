@@ -63,23 +63,6 @@ class radiative_disruption():
     def a_disrupt(self,a_size):
         wd = 2./a_size * sqrt(self.Smax/self.rho)
         wr = wRAT(self.U,self.u_ISRF,a_size,self.ngas,self.Tgas,self.mean_lam,self.gamma,self.rho)
-        #print('check:',shape(a),shape(wd),shape(wr))
-        #plt.loglog(a,wd,'-')
-        #plt.loglog(a,wr,'--')
-        #plt.show()
-        #exit(0)
-        # try:
-        #     acrit=align.intersection(a,array(wd),a,array(wr))[0][0]
-        #     if (parallel):
-        #         log.info('   *** Urad = %.3f'%(UINDEX))
-        #     log.info('   *** Checking disruption: \033[1;36m occured \033[0m')
-        #     log.info('   *** a_disr = %.2f(um)'%(acrit*1e4))
-        # except:
-        #     lmax = max(where(a<=amax+0.1*amax)[0])
-        #     acrit = a[lmax]
-        #     if (parallel):
-        #         log.info('   *** Urad = %.3f'%(UINDEX))
-        #     log.info('   *** Checking disruption: \033[1;36m no \033[0m')
         ratio = wr/wd
         try:
             idd  = max(where(ratio<=1)[0])

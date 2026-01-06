@@ -7,28 +7,45 @@ from astropy import log
 ##[!Warning] we don't calculate here dPdT, but we instead tabulate dPdT for a
 #set of radiation strength (U)
 class radiation_retrieve():
+    _Urange_tempdist_cache = {}
+
     def __init__(self,parent):
         self.U = parent.U
         self.path=parent.path
-    def retrieve(self):
-        tempdist_path = self.path+'data/'
-        all_folders = os.listdir(tempdist_path)
-        tempdist_tab  = [all_folders[i] for i in range(len(all_folders)) if 'U=' in all_folders[i]]
-        self.Urange_tempdist=[eval(re.findall("\d+\.\d+", tempdist_tab[i])[0]) for i in range(len(tempdist_tab))]
-        self.Urange_tempdist.sort()
+        
+    def retrieve(self,PAHs=False):
+        key = (self.path, PAHs)
+        
+        if key not in radiation_retrieve._Urange_tempdist_cache:
+            if not PAHs:
+                tempdist_path = self.path+'data/sil_car/dp_dlnT/'
+            else:
+                tempdist_path = self.path+'data/PAHs/dp_dlnT/'
+                
+            all_folders = os.listdir(tempdist_path)
+            tempdist_tab  = [all_folders[i] for i in range(len(all_folders)) if 'U=' in all_folders[i]]            
+            Urange_tempdist=[]
+            for s in tempdist_tab:
+                match =  re.search(r'TEMP_U=([0-9]*\.?[0-9]+)', s)
+                if match:
+                    number = float(match.group(1))
+                    Urange_tempdist.append(number)
+            Urange_tempdist.sort()
+            radiation_retrieve._Urange_tempdist_cache[key] = Urange_tempdist
+        else:
+            Urange_tempdist = radiation_retrieve._Urange_tempdist_cache[key]
 
         ##MAKE A TRICK
-        if self.U < min(self.Urange_tempdist):
-            log.warning('*** Your value of U=%.3f < Umin=%.3f --> \033[1;5;33m set U == %.3f \033[0m'%(self.U,min(self.Urange_tempdist),min(self.Urange_tempdist)))
-            self.U=min(self.Urange_tempdist)
-        elif self.U> max(self.Urange_tempdist):
-            log.warning('*** Your value of U=%.3f > Umax=%.3f --> \033[1;5;33m set U == %.3f \033[0m'%(self.U,max(self.Urange_tempdist),max(self.Urange_tempdist)))
-            self.U=max(self.Urange_tempdist)
+        if self.U < min(Urange_tempdist):
+            log.warning('*** [get dP/dT] Your value of U=%.3f < pre-computed Umin=%.3f --> \033[1;5;33m set U == %.3f \033[0m'%(self.U,min(Urange_tempdist),min(Urange_tempdist)))
+            U_near=min(Urange_tempdist)
+        elif self.U> max(Urange_tempdist):
+            log.warning('*** [get dP/dT] Your value of U=%.3f > pre-computed Umax=%.3f --> \033[1;5;33m set U == %.3f \033[0m'%(self.U,max(Urange_tempdist),max(Urange_tempdist)))
+            U_near=max(Urange_tempdist)
         else:
-            self.U=self.U
+            U_near=self.U
 
-        idx = abs(np.array(self.Urange_tempdist)-self.U).argmin()
-        ##update radiation field
-        self.U = self.Urange_tempdist[idx]
-        return self.U
+        idx = abs(np.array(Urange_tempdist)-U_near).argmin()
+        U_near = Urange_tempdist[idx]
+        return U_near
         #

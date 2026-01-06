@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import scipy.integrate as integrate
 from matplotlib.colors import LogNorm
 from  .decorators import auto_refresh
+from .check_vars import check_variable_name,check_variable_combination
 
 class pol_degree(object):
     # def __init__(self,
@@ -41,179 +42,234 @@ class pol_degree(object):
         self.fp=parent.fp
         self.f_min=parent.f_min
         self.f_max=parent.f_max
-        # self.alpha=parent.alpha
+        self.alpha=parent.alpha
         self.B_angle=parent.B_angle
         self.Urange_tempdist=[]
         self.u_ISRF=parent.u_ISRF
         self.rho=parent.rho
         self.w  = parent.w
+        self.align_func = parent.align_func
+        self.pstiff=parent.pstiff
         self.verbose=parent.verbose
-        # self.progress=parent.progress
-        # self.B_gra=parent.B_gra
-        # self.B_sil=parent.B_sil
-        # self.Data_sil=parent.Data_sil
-        # self.Data_mCBE=parent.Data_mCBE
-
-        # self.Qext_sil=parent.Qext_sil
-        # self.Qabs_sil=parent.Qabs_sil
-        # self.Qpol_sil=parent.Qpol_sil
-        # self.Qpol_abs_sil=parent.Qpol_abs_sil
-
-        # self.Qext_amCBE=parent.Qext_amCBE
-        # self.Qabs_amCBE=parent.Qabs_amCBE
-        # self.Qpol_amCBE=parent.Qpol_amCBE
-        # self.Qpol_abs_amCBE=parent.Qpol_abs_amCBE
-
-
-        # ##test starless core
-        # # self.n0_gas=1e5
-        # self.rflat = parent.rflat
-        # self.rout=parent.rout
-        # self.nsample=parent.nsample
-        # log.info('self.U=%.3f'%(self.U))
-
-        ##get the grain size distribution
-
-        # # cal=pol_degree.pol_degree(self)
-
-        # ##get the grain size distribution
-        # self.dn_da_sil,self.dn_da_gra=self.grain_size_distribution()
-        # print('self.na=',self.na,len(self.dn_da_sil),len(self.dn_da_gra))
-        # log.info('max(a)=%.2f (um)'%(self.a.max()*1e4))
-        # # cal=pol_degree.pol_degree(self)
-
-        # # ##get the Tgrain distribution
-        # # self.T_sil,self.T_gra,self.dP_dlnT_sil,self.dP_dlnT_gra = self.dP_dT()
+        self.alpha_DG=parent.alpha_DG
+        self.temp_ratio=parent.temp_ratio
+        
+        ## get the 2layer dust model
+        self.model_layer = parent.model_layer
+        self.fheat       = parent.fheat
+        self.fscale      = parent.fscale
+        self.fscale_car  = parent.fscale_car
 
         ##get the alignment size and alignment function
-        ali_cl = align.alignment_class(self)
-        a_ali  = ali_cl.Aligned_Size_v2()
-        # if not (self.progress):
-        #     log.info(' [Cross-check] align=%.3f \u2713 '%(a_ali*1e4))
+        ali_cl  = align.alignment_class(self)
+        # a_ali   = ali_cl.Aligned_Size_v2()
         self.fa = ali_cl.f_ali()
 
-        # ##-------- new dust temperature and its probability distribution --------
-        # self.T_gra = T_gra[self.lmin:self.lmax+1, :]
-        # self.T_sil = T_sil[self.lmin:self.lmax+1, :]
-        # self.dP_dlnT_gra = dP_dlnT_gra[self.lmin:self.lmax+1, :]
-        # self.dP_dlnT_sil = dP_dlnT_sil[self.lmin:self.lmax+1, :]
-
-        # -------- PLANCK FUNCTION -------- 
-        ##This one is preferable, but the computation costs quite a bit
-        # self.B_gra = rad_func.planck(self.w,self.na,self.T_gra,self.dP_dlnT_gra)
-        # self.B_sil = rad_func.planck(self.w,self.na,self.T_sil,self.dP_dlnT_sil)
-
-        # -------- efficiency factors : Qext, Qpol --------
-        # self.get_coefficients_files()
-        # if float(self.alpha)==2.0: ##efficiences data from POLARIS has a problem <-- fixed
-        #     [self.Qext_sil, self.Qabs_sil, self.Qpol_sil, self.Qpol_abs_sil] = qq.Qext_grain(self.Data_sil,self.w,self.a,self.alpha,fixed=False,wmin=172e-4,wmax=628e-4,dtype='sil')        
-        #     [self.Qext_amCBE, self.Qabs_amCBE, self.Qpol_amCBE, self.Qpol_abs_amCBE] = qq.Qext_grain(self.Data_mCBE,self.w,self.a,self.alpha,fixed=True,wmin=172e-4,wmax=300e-4,dtype='car')
-        # else:
-        #     [self.Qext_sil, self.Qabs_sil, self.Qpol_sil, self.Qpol_abs_sil] = qq.Qext_grain(self.Data_sil,self.w,self.a,self.alpha)        
-        #     [self.Qext_amCBE, self.Qabs_amCBE, self.Qpol_amCBE, self.Qpol_abs_amCBE] = qq.Qext_grain(self.Data_mCBE,self.w,self.a,self.alpha)
-
-    @auto_refresh
-    def _pol_degree_absorption_(self,parent):
-        if self.dust_type.lower()=='astro' or self.dust_type.lower()=='astro+pah':
-            #For the moment: PAH is not aligned and produced polarization
-            dn_da_astro=parent.dn_da_astro
-            Qpol_abs_astro=parent.Qpol_abs_astro
-
-            dP_abs_a = dn_da_astro* Qpol_abs_astro* np.pi* self.a**2 * self.fa
-            dP_abs   = integrate.simps(dP_abs_a, self.a) * self.ngas*100#* exp(-tau)
-            return self.w,dP_abs,np.zeros(len(self.w))
-
-        else:
-            dn_da_sil=parent.dn_da_sil
-            dn_da_gra=parent.dn_da_gra
-
-            Qpol_abs_sil=parent.Qpol_abs_sil
-            Qpol_abs_amCBE=parent.Qpol_abs_amCBE
-
-            dP_abs_sil_a = dn_da_sil* Qpol_abs_sil* np.pi* self.a**2 * self.fa
-            dP_abs_sil   = integrate.simps(dP_abs_sil_a, self.a) * self.ngas*100#* exp(-tau)
-
-            dP_abs_car_a = dn_da_gra* Qpol_abs_amCBE* np.pi* self.a**2 * self.fa
-            dP_abs_car   = integrate.simps(dP_abs_car_a, self.a)*self.ngas*100 #* exp(-tau)
-
-            dP_abs_mix     = dP_abs_sil+dP_abs_car
-            return self.w,dP_abs_sil,dP_abs_mix
-
-    @auto_refresh
-    def _pol_degree_emission_(self,parent,tau=0.0):
-        if self.dust_type.lower()=='astro' or self.dust_type.lower()=='astro+pah':
-            #For the moment: PAH is not aligned and produced polarization
-
-            ## get globals argument to pass into functions fIem, fIpol
-            self.dn_da_astro=parent.dn_da_astro 
-            self.B_astro=parent.B_astro
-            self.Qabs_astro=parent.Qabs_astro
-            self.Qpol_astro=parent.Qpol_astro
-
-            self.fIem_astro(tau)  ## return in global Iem_astro
-            self.fIpol_astro(tau) ## return in global Ipol_astro
-
-            Iext_astro = self.Iem_astro* self.w
-            Ipol_emis_astro=self.Ipol_astro*self.w
-            P_em_astro=Ipol_emis_astro/Iext_astro*100
-            return self.w,[Iext_astro,Ipol_emis_astro,np.zeros(len(self.w))],[P_em_astro,np.zeros(len(self.w))]
-
-        else:
-            ## get globals argument to pass into functions fIem, fIpol
-            self.dn_da_sil=parent.dn_da_sil
-            self.dn_da_gra=parent.dn_da_gra
-
-            self.B_gra=parent.B_gra
-            self.B_sil=parent.B_sil
-
-            self.Qext_sil=parent.Qext_sil
-            self.Qabs_sil=parent.Qabs_sil
-            self.Qpol_sil=parent.Qpol_sil
-
-            self.Qext_amCBE=parent.Qext_amCBE
-            self.Qabs_amCBE=parent.Qabs_amCBE
-            self.Qpol_amCBE=parent.Qpol_amCBE
-
-            # -------- Total emission --------
-            #Total emission intensity, produced by both Sil and Carb
-            self.fIem_sil(tau)
-            self.fIem_car(tau)
-            Iext = (self.Iem_amCBE +self.Iem_sil)* self.w
+        if self.fscale is not None:
+            self.U    = getattr(parent, f'U_add', None) # Update the U value for the second layer
+            self.a    = getattr(parent, f'a_add', None) # Update the grain size for the second layer
+            ali_cl    = align.alignment_class(self)
+            self.fa_add    = ali_cl.f_ali()
             
-            # -------- Polarized emission --------
-            #If only Sil are aligned, Ipol = Ipol_Sil
-            self.fIpol_sil(tau)
-            Ipol_emis_sil  = self.Ipol_sil *self.w
-            P_em_sil = Ipol_emis_sil/Iext *100
+            self.U = parent.U # Reset the U value for the first layer
+            self.a = parent.a # Reset the grain size for the first layer 
+               
 
-            #The case when only carbonaceous are aligned
-            self.fIpol_car(tau)
-            Ipol_emis_car  = self.Ipol_amCBE*self.w
-            P_em_car = Ipol_emis_car/Iext*100
+    @auto_refresh
+    def tau_xy(self,parent,Ngas):
+        """
+        Calculate the optical depth along the x-axis and y-axis of the grain.
+        """
 
-            #The case when both sil and carbonaceous have been aligned
-            Ipol_emis_tot  = (self.Ipol_sil + self.Ipol_amCBE)*self.w
-            P_em_mix = Ipol_emis_tot/Iext *100
-            return self.w,[Iext,Ipol_emis_sil,Ipol_emis_tot],[P_em_sil,P_em_mix]
+        tau_x_total = 0.0
+        tau_y_total = 0.0
+        for dusttype in parent.dust_type.split("+"):
+            dn_da = getattr(parent, f'dn_da_{dusttype}', None)
+            Qext  = getattr(parent, f'Qext_{dusttype}', None)
+            Qpol  = getattr(parent, f'Qpol_{dusttype}', None)
+            
+            # polarized tau for each dusttype
+            _,dP_abs_dict,_ = self._pol_degree_absorption_thin_(parent)
+            tau_pol_ = dP_abs_dict[dusttype]/self.ngas/100 * Ngas
 
-    # # -------- optical depth --------
-    # def optical_depth(self):
-    #     #optical depth of silicate
-    #     fsil_ext= self.Qext_sil * np.pi *self.a*self.a * self.dn_da_sil * NH
-    #     tau_sil = integrate.simps(fsil_ext, a)
-    #     #optical depth of carbon
-    #     fgra_ext= Qext_amCBE * pi *a*a * dn_da_gra* NH
-    #     tau_gra = integrate.simps(fgra_ext, a)
-    #     tau = tau_sil+tau_gra
+            # extinction per gas number density for each dusttype
+            dtau_ = (Qext + self.fa * Qpol*(2./3 - np.sin(self.B_angle)*np.sin(self.B_angle))) * np.pi * self.a**2 * dn_da
+            if len(self.a)%2 == 0:
+                tau_ = integrate.trapezoid(dtau_,self.a) * Ngas
+            else:
+                tau_ = integrate.simpson(dtau_,self.a) * Ngas
 
-    # ==================== Polarized emission ====================
+            tau_x_ = tau_-tau_pol_
+            tau_y_ = tau_+tau_pol_
+            
+            tau_x_total += tau_x_
+            tau_y_total += tau_y_
+        return tau_x_total, tau_y_total
+
+    @auto_refresh
+    def _pol_degree_absorption_thin_(self,parent): #optically thin assumption
+        dP_abs_dict = {}
+        # dP_abs_a_return={}
+        for dusttype in parent.dust_type.split("+"):
+            dn_da = getattr(parent, f'dn_da_{dusttype}', None)
+            Qpol_abs = getattr(parent, f'Qpol_abs_{dusttype}', None)
+            # print("dusttype=",dusttype,"B_angle=",self.B_angle,'Qpol_abs=',Qpol_abs,'dn_da=',dn_da,'fa=',self.fa)
+            dP_abs_a = dn_da * np.sin(self.B_angle)**2 * Qpol_abs * np.pi* self.a**2 * self.fa
+            dP_abs_a[dP_abs_a<0]=0.0 #remove negative values
+            # dP_abs_a_return[dusttype] = dP_abs_a
+
+            if len(self.a)%2 ==0:
+                dP_abs_dict[dusttype]  = integrate.trapezoid(dP_abs_a, self.a) * self.ngas*100#* exp(-tau)
+            else:
+                dP_abs_dict[dusttype]  = integrate.simpson(dP_abs_a, self.a) * self.ngas*100#* exp(-tau)
+
+        # total degree of polarization over all dusttype
+        dP_abs = np.sum(list(dP_abs_dict.values()), axis=0)
+        return self.w,dP_abs_dict,dP_abs#,dP_abs_a_return
+
+    # @auto_refresh
+    # def _pol_degree_absorption_general_(self,parent,Ngas):
+    #     w,dP_abs_dict,_ = self._pol_degree_absorption_thin_(parent)
+    #     P_abs_dict={}
+    #     for dusttype in parent.dust_type.split("+"):
+    #         P_abs_dict[dusttype] = np.tanh(dP_abs_dict[dusttype]/self.ngas/100 * Ngas) * 100
+        
+    #     # total degree of polarization over all dusttype
+    #     P_abs = np.sum(list(P_abs_dict.values()), axis=0)
+    #     return w,P_abs
+    
+    @auto_refresh
+    def _pol_degree_emission_thin(self,parent):
+        Iem_dict={}
+        Ipol_dict={}
+        for dusttype in parent.dust_type.split("+"):
+            dn_da = getattr(parent, f'dn_da_{dusttype}', None)
+            Qabs  = getattr(parent, f'Qabs_{dusttype}', None)
+            Qpol  = getattr(parent, f'Qpol_{dusttype}', None)
+            BB    = getattr(parent, f'BB_{dusttype}', None)
+            f_mass= getattr(parent, f'f_mass_{dusttype}', None)
+
+            # if (Ngas is None): # optically thin assumption
+            Iem   = f_mass * self.fIem(self.a,self.fa,dn_da,Qabs,Qpol,BB) * self.w
+            Ipol  = f_mass * self.fIpol(self.a,self.fa,dn_da,Qpol,BB) * self.w
+            
+            
+            # If the dust model is one layer, then Iem_add and Ipol_add are zero        
+            if self.fscale is None: #one layer dust model
+                Iem_add = 0.0
+                Ipol_add= 0.0
+                        
+            # If the dust model is two layers, then calculate the additional layer
+            else: #two layer dust model
+                a_add     = getattr(parent, f'a_add', None)
+                dn_da_add = getattr(parent, f'dn_da_add_{dusttype}', None)
+                Qabs_add  = getattr(parent, f'Qabs_add_{dusttype}', None)
+                Qpol_add  = getattr(parent, f'Qpol_add_{dusttype}', None)
+                BB_add    = getattr(parent, f'BB_add_{dusttype}', None)
+                    
+                Iem_add = f_mass * self.fscale * self.fIem(a_add,self.fa_add,dn_da_add,Qabs_add,Qpol_add,BB_add) * self.w
+                Ipol_add= f_mass * self.fscale * self.fIpol(a_add,self.fa_add,dn_da_add,Qpol_add,BB_add) * self.w
+
+            # Sum the two layers
+            Iem  += Iem_add
+            Ipol += Ipol_add
+
+            Iem[Iem<0]=0.
+            Ipol[Ipol<0]=0.
+            Iem_dict[dusttype] = Iem
+            Ipol_dict[dusttype]= Ipol
+            # Iem_dict[dusttype+'_add'] = Iem_add
+            # Ipol_dict[dusttype+'_add']= Ipol_add
+            
+        Iem_tot = np.sum(list(Iem_dict.values()), axis=0)
+        Ipol_tot= np.sum(list(Ipol_dict.values()), axis=0) 
+        # Pem = np.where(Iem_tot !=0, Ipol_tot/Iem_tot * 100, 0)
+        den = np.nan_to_num(Iem_tot, nan=0.0, posinf=0.0, neginf=0.0)
+        num = np.nan_to_num(Ipol_tot, nan=0.0, posinf=0.0, neginf=0.0)
+        mask = den != 0.0
+        Pem = np.zeros_like(den)
+        Pem[mask] = (num[mask] / den[mask]) * 100.0
+        return self.w,[Iem_dict,Ipol_dict],[Iem_tot,Ipol_tot],Pem
+
+    @auto_refresh
+    def _pol_degree_emission_general(self,parent,Ngas):
+        Ipol_dict = {}
+        Iem_dict  = {}
+
+        BB = {}
+        tau_x_total = 0.0
+        tau_y_total = 0.0
+        for dusttype in parent.dust_type.split("+"):
+            dn_da        = getattr(parent, f'dn_da_{dusttype}', None)
+            Qext  = getattr(parent, f'Qext_{dusttype}', None)
+            Qpol  = getattr(parent, f'Qpol_{dusttype}', None)
+            
+            # Qabs_x       = getattr(parent, f'Qabs_x_{dusttype}', None) 
+            # Qabs_y       = getattr(parent, f'Qabs_y_{dusttype}', None) 
+            BB[dusttype] = getattr(parent, f'BB_{dusttype}', None)[0,:] # BB is a 2D array, we take the first row for the wavelength
+
+            # polarized tau for each dusttype
+            _,dP_abs_dict,_ = self._pol_degree_absorption_thin_(parent)
+            tau_pol_ = dP_abs_dict[dusttype]/self.ngas/100 * Ngas
+
+            # extinction per gas number density for each dusttype
+            dtau_ = (Qext + self.fa * Qpol*(2./3 - np.sin(self.B_angle)*np.sin(self.B_angle))) * np.pi * self.a**2 * dn_da
+            if len(self.a)%2 == 0:
+                tau_ = integrate.trapezoid(dtau_,self.a) * Ngas
+            else:
+                tau_ = integrate.simpson(dtau_,self.a) * Ngas
+
+            tau_x_ = tau_-tau_pol_
+            tau_y_ = tau_+tau_pol_
+
+            Ipol_dict[dusttype] = (np.exp(-tau_x_) - np.exp(-tau_y_))/2.0
+            Ipol_dict[dusttype] = Ipol_dict[dusttype] * BB[dusttype].T
+            
+            Iem_dict[dusttype] = (2.0 - (np.exp(-tau_x_) + np.exp(-tau_y_)))/2.0
+            Iem_dict[dusttype] = Iem_dict[dusttype] * BB[dusttype].T
+            
+            tau_x_total += tau_x_
+            tau_y_total += tau_y_
+            
+        # total emission intensities                      
+        Iem_tot  = (2.0 - (np.exp(-tau_x_total) + np.exp(-tau_y_total)))/2.0
+        Ipol_tot = (np.exp(-tau_x_total) - np.exp(-tau_y_total))/2.0
+        Iem_tot  = Iem_tot  * np.sum(list(BB.values()), axis=0)
+        Ipol_tot = Ipol_tot * np.sum(list(BB.values()), axis=0)
+
+        # total degree of polarization
+        Pem = np.where(Iem_tot !=0, Ipol_tot/Iem_tot * 100, 0)
+        return self.w,[Iem_dict,Ipol_dict],[Iem_tot,Ipol_tot],Pem
+    
+    # ==================== Total emission intensities ====================
+    def fIem(self,a,fa,dn_da,Qabs,Qpol,BB):
+        arr1=self.ngas * dn_da * (Qabs+Qpol*fa*(2./3-np.sin(self.B_angle)*np.sin(self.B_angle)))* np.pi* a**2 
+        arr2=BB.T * np.array([np.exp(-0.0)]).T
+        dI_em=np.multiply(arr1,arr2)
+        if len(a)%2 == 0:
+            return integrate.trapezoid(dI_em, a)
+        else:
+            return integrate.simpson(dI_em, a)
+    # ==================== Polarized emission intensities ====================
+    def fIpol(self,a,fa,dn_da,Qpol,BB):
+        arr2=BB.T * np.array([np.exp(-0.0)]).T
+        arr3=self.ngas * dn_da * Qpol * np.pi* a**2 * fa *np.sin(self.B_angle)*np.sin(self.B_angle)
+        dI_pol=np.multiply(arr3,arr2)
+        if len(a)%2 == 0:
+            return integrate.trapezoid(dI_pol, a)
+        else:
+            return integrate.simpson(dI_pol, a)
+            
     def fIem_sil(self,tau):
         # -------- Silicate grain --------
         ##Total intensities
         arr1=self.ngas*self.dn_da_sil* (self.Qabs_sil+self.Qpol_sil*self.fa*(2./3-np.sin(self.B_angle)*np.sin(self.B_angle)))* np.pi* self.a**2 
         arr2=self.B_sil.T * np.array([np.exp(-tau)]).T
         dI_em_sil=np.multiply(arr1,arr2)
-        self.Iem_sil = integrate.simps(dI_em_sil, self.a)
+        if len(self.a)%2 is 0:
+            self.Iem_sil = integrate.trapezoid(dI_em_sil, self.a)
+        else:
+            self.Iem_sil = integrate.simpson(dI_em_sil, self.a)
         return
 
     def fIpol_sil(self,tau):
@@ -221,12 +277,15 @@ class pol_degree(object):
         arr2=self.B_sil.T * np.array([np.exp(-tau)]).T
         arr3=self.ngas*self.dn_da_sil* self.Qpol_sil* np.pi* self.a**2 * self.fa/2 *np.sin(self.B_angle)*np.sin(self.B_angle)
         dI_pol_sil=np.multiply(arr3,arr2)
-        self.Ipol_sil = integrate.simps(dI_pol_sil, self.a)
+        if len(self.a)%2 is 0:
+            self.Ipol_sil = integrate.trapezoid(dI_pol_sil, self.a)
+        else:
+            self.Ipol_sil = integrate.simpson(dI_pol_sil, self.a)
         return
 
         # ##Polarized absorption intensities
         # dI_pol_abs_sil = dn_da_sil* Qpol_abs_sil* pi* a**2 * fa
-        # Ipol_abs_sil   = integrate.simps(dI_pol_abs_sil, a) #* exp(-tau)
+        # Ipol_abs_sil   = integrate.simpson(dI_pol_abs_sil, a) #* exp(-tau)
 
     def fIem_car(self,tau):
         # -------- Carbonaceous grain --------
@@ -234,7 +293,10 @@ class pol_degree(object):
         arr1=self.ngas*self.dn_da_gra* self.Qabs_amCBE* np.pi* self.a**2
         arr2=self.B_gra.T * np.array([np.exp(-tau)]).T
         dI_em_amCBE=np.multiply(arr1,arr2)
-        self.Iem_amCBE  = integrate.simps(dI_em_amCBE, self.a)
+        if len(self.a)%2 is 0:
+            self.Iem_amCBE  = integrate.trapezoid(dI_em_amCBE, self.a)    
+        else:
+            self.Iem_amCBE  = integrate.simpson(dI_em_amCBE, self.a)
         return
 
     def fIpol_car(self,tau):
@@ -242,11 +304,14 @@ class pol_degree(object):
         arr2=self.B_gra.T * np.array([np.exp(-tau)]).T
         arr3=self.ngas*self.dn_da_gra* self.Qpol_amCBE* np.pi* self.a**2 * self.fa/2
         dI_pol_amCBE=np.multiply(arr3,arr2)
-        self.Ipol_amCBE = integrate.simps(dI_pol_amCBE, self.a)
+        if len(self.a)%2 is 0:
+            self.Ipol_amCBE = integrate.trapezoid(dI_pol_amCBE, self.a)
+        else:
+            self.Ipol_amCBE = integrate.simpson(dI_pol_amCBE, self.a)
         return
         # ##Polarized absorption intensities
         # dI_pol_abs_amCBE = dn_da_gra* Qpol_abs_amCBE* pi* a**2 * fa
-        # Ipol_abs_amCBE   = integrate.simps(dI_pol_abs_amCBE, a) #* exp(-tau)
+        # Ipol_abs_amCBE   = integrate.simpson(dI_pol_abs_amCBE, a) #* exp(-tau)
 
     def fIem_astro(self,tau):
         # -------- Silicate grain --------
@@ -255,7 +320,23 @@ class pol_degree(object):
         arr1=self.ngas*self.dn_da_astro* self.Qabs_astro* np.pi* self.a**2
         arr2=self.B_astro.T * np.array([np.exp(-tau)]).T
         dI_em_astro=np.multiply(arr1,arr2)
-        self.Iem_astro = integrate.simps(dI_em_astro, self.a)
+        if len(self.a)%2 is 0:
+            self.Iem_astro = integrate.trapezoid(dI_em_astro, self.a)    
+        else:
+            self.Iem_astro = integrate.simpson(dI_em_astro, self.a)
+        return
+
+    def fIem_pah(self,tau):
+        # -------- PAH grain --------
+        ##Total intensities
+        # arr1=self.ngas*self.dn_da_astro* (self.Qabs_astro+self.Qpol_astro*self.fa*(2./3-np.sin(self.B_angle)*np.sin(self.B_angle)))* np.pi* self.a**2 
+        arr1=self.ngas*self.dn_da_pah* self.Qabs_pah* np.pi* self.a**2
+        arr2=self.B_pah.T * np.array([np.exp(-tau)]).T
+        dI_em_pah=np.multiply(arr1,arr2)
+        if len(self.a)%2 is 0:
+            self.Iem_pah = integrate.trapezoid(dI_em_pah, self.a)    
+        else:
+            self.Iem_pah = integrate.simpson(dI_em_pah, self.a)
         return
 
     def fIpol_astro(self,tau):
@@ -263,7 +344,10 @@ class pol_degree(object):
         arr2=self.B_astro.T * np.array([np.exp(-tau)]).T
         arr3=self.ngas*self.dn_da_astro* self.Qpol_astro* np.pi* self.a**2 * self.fa *np.sin(self.B_angle)*np.sin(self.B_angle)
         dI_pol_astro=np.multiply(arr3,arr2)
-        self.Ipol_astro = integrate.simps(dI_pol_astro, self.a)
+        if len(self.a)%2 is 0:
+            self.Ipol_astro = integrate.trapezoid(dI_pol_astro, self.a)
+        else:
+            self.Ipol_astro = integrate.simpson(dI_pol_astro, self.a)
         return
 
     # # ------- dust grain size -------

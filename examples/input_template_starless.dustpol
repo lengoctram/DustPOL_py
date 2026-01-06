@@ -1,0 +1,76 @@
+!!!! Template--modifications must be made for different targets
+!--------------------------------------------------------------------------------------------
+! ENVIRONMENT SETTING
+!--------------------------------------------------------------------------------------------
+output_dir     output   !directory for the output files
+ratd           True     !True: turn on RAT-D
+!--------------------------------------------------------------------------------------------
+! ISOLATED CLOUD
+!--------------------------------------------------------------------------------------------
+Lstar          None     !luminosity of the central source
+p              2.       !power-index for profiling gas volume density (a spherical plummer)
+rin            1700.    ![au]: inner radius
+rout           1.248e5  ![au]: outer radius (test Pipe-109)
+rflat          5000.    ![au]: flat radius (r<r0: n=n0=const.) (test Pipe-109)
+                        !                   r>r0: n~r^{-p}
+nsample        100      !number of points sampling from rin -> rout
+!--------------------------------------------------------------------------------------------
+! RADIATION SETTING
+!--------------------------------------------------------------------------------------------
+U              1.0      !U=u_rad/u_ISRF: numerics or 'Tdust'
+                        !  * if U=='Tdust': U from thermal-equilib.
+                        !  * for isolated cloud: U==rad. at the cloud surface
+gamma          0.3      !anisotropic degree
+mean_lam       1.2      ![um]: mean wavelength of the radiation field
+!--------------------------------------------------------------------------------------------
+! GAS SETTING
+!--------------------------------------------------------------------------------------------
+n_gas          5e5      ![cm-3]:gas volume density (ngas = n(H) + 2n(H2) + ...)
+T_gas          16.4     ![K]: gas temperature
+!--------------------------------------------------------------------------------------------
+! DUST SETTING
+!--------------------------------------------------------------------------------------------
+aligned_dust   astro    ![grain type] 'sil' or 'car' or 'sil+car' or 'astro'
+amin           3.1e-4   ![um]: mininum grain size
+amax           1.0      ![um]: maximum grain size
+Tdust          0        ![K]: dust temperature
+                        !     * 0       : when U!=0 (U-->Tdust)
+                        !     * numerics: when U=0  (Tdust-->U)
+rho            3        ![g*cm^-3]:dust mass volume density
+alpha          1.4      !grain axes-ratio #prolate 0.3333
+Smax           1e9      ![erg cm-3]: tensile strength of grains
+                        !            *effective only when ratd='on'
+dust_gas_ratio 0.01     !dust-to-gas-mass ratio
+!--------------------------------------------------------------------------------------------
+! GRAIN SIZE DISTRIBUTION SETTING
+!--------------------------------------------------------------------------------------------
+law            MRN      !size-distribution law: 'MRN' or 'WD01' or 'WD01_ed' or 'HD23'
+power_inde     -3.5     !power-index of GSD if 'MRN'
+!--------------------------------------------------------------------------------------------
+! ALIGNMENT THEORY
+!--------------------------------------------------------------------------------------------
+RATalign        RAT     ! RAT or MRAT theory
+fmin            0.0     ! minimum of grain alignment efficiency
+fmax            1.0     ! 1=100%: maximum of grain alignment efficiency
+Bfield          600.0   ! strength of B-field (only active for MRAT)
+B_angle         90.0    ! [deg] inclination angle of B-field wrt. LOS
+                        !     90deg: B-field completely on POS
+Ncl             10.     ! if RATalign==MRAT
+                        !     * Ncl: number of iron atoms per cluster 
+phi_sp          0.1     !     * phi_sp: volume fitting factor of iron cluster (0.1=10%) 
+fp              0.1     !     * fp: Iron fraction of PM grains
+!--------------------------------------------------------------------------------------------
+! DUST LAYERS
+!--------------------------------------------------------------------------------------------
+model_layer     1       ! number of dust layer along the LOS [1,2]
+fheat           4.5       ! if model_layer==2:
+                        !     * fheat : Tdust/Tdust2 or reverse
+fscale          1e3     !     * fscale: relative contribution between 2 layers
+fscale_car      1.0     !     * fscale_car: relative carbon's abundance
+!--------------------------------------------------------------------------------------------
+! NUMERIC SETING
+!--------------------------------------------------------------------------------------------
+parallel       True     !'False' or 'True': paralle run
+cpu            -1       !processor's number if parallel
+                        !  *-1: all processors
+                        !  * 1: one prosessor

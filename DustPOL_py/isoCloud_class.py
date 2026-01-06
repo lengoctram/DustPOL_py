@@ -41,12 +41,45 @@ class isoCloud_profile(object):
         self.nsample = parent.nsample
         self.rflat   = parent.rflat
         self.p       = parent.p
-
+        sampling_type = parent.sampling_type
+        
+        if self.rout is None:
+            raise ValueError("rout (outer radius) must be specified")
+        try:
+            self.rout = float(self.rout)
+        except:
+            raise ValueError("rout (outer radius) must be a number (in cm)")
+        
+        if self.rflat is None:
+            raise ValueError("rflat (flat radius) must be specified")
+        try:
+            self.rflat = float(self.rflat) 
+        except:
+            raise ValueError("rflat (flat radius) must be a number (in cm)")
+        
+        if self.nsample is None:
+            raise ValueError("nsample (number of sampling points) must be specified")
+        try:
+            self.nsample = int(self.nsample)
+        except:
+            raise ValueError("nsample (number of sampling points) must be an integer")
+        
+        if self.rout is None:
+            raise ValueError("rout (outer radius) must be specified")
+        try:
+            self.rout = float(self.rout)
+        except:
+            raise ValueError("rout (outer radius) must be a number (in cm)")
+        
         # log.info('max(a)=%.3f (um)'%(self.a.max()*1e4))
         # log.info('n0_gas=%.3e'%(self.n0_gas))
         #self.rr = np.linspace(0,self.rout/2e3,self.nsample)
-        self.rr = np.linspace(0,self.rout,self.nsample)#np.linspace(0,self.rout/5e3,self.nsample)
-
+        if sampling_type=='lin_space':
+            self.rr = np.linspace(0,self.rout,self.nsample)#np.linspace(0,self.rout/5e3,self.nsample)
+        elif sampling_type=='log_space':
+            self.rr = np.logspace(np.log10(1e-5),np.log10(self.rout),self.nsample)
+        # self.rr = np.logspace(np.log10(1e-5),np.log10(self.rout),self.nsample)
+        
         # self.rr = list(np.linspace(0,self.rout/4.1e3,int(self.nsample/2)))+list(np.linspace(self.rout/4.e3,self.rout/2.e3,int(self.nsample/2))) #5e3
         # self.rr=np.array(self.rr)
         
@@ -63,27 +96,8 @@ class isoCloud_profile(object):
         self.wavelength_map  = np.zeros((len(self.x),len(self.z)))        
         return [self.x,self.y,self.z],self.rr#self.rr.max()
 
-    # def grain_size_distribution(self,parent):
-    #     self.GSD_law=parent.GSD_law
-    #     self.power_index=parent.power_index
-    #     self.dust_to_gas_ratio=parent.dust_to_gas_ratio
-
-    #     if self.dust_type=='astro' or self.dust_type=='Astro':
-    #         dn_da_astro = size_distribution.dnda_astro(self.a)
-    #         return dn_da_astro
-    #     else:
-    #         dn_da_gra = size_distribution.dnda(6,'carbon',self.a,self.GSD_law,self.power_index,self.dust_to_gas_ratio)
-    #         dn_da_sil = size_distribution.dnda(6,'silicate',self.a,self.GSD_law,self.power_index,self.dust_to_gas_ratio)
-    #         return dn_da_sil, dn_da_gra
-
-        # print("GSD_law=",self.GSD_law)
-
-        # self.dn_da_gra = size_distribution.dnda(6,'carbon',self.a,self.GSD_law,self.power_index,self.dust_to_gas_ratio)
-        # self.dn_da_sil = size_distribution.dnda(6,'silicate',self.a,self.GSD_law,self.power_index,self.dust_to_gas_ratio)
-        # return
-
     @auto_refresh
-    def Av_func(self,parent,r0):
+    def Av_los_by_dust(self,parent,r0):
         """
             This function to calculate the Av along the line-of-sight at location on POS:r0
             This function to returns the observed Av.
@@ -119,8 +133,8 @@ class isoCloud_profile(object):
 
             #optical depth of astrodust
             fastro_ext = Qext_astro_V * np.pi *a*a * dn_da_astro
-            dtau_astro = integrate.simps(fastro_ext, a) * n
-            tau = integrate.simps(dtau_astro, s)
+            dtau_astro = integrate.simpson(fastro_ext, a) * n
+            tau = integrate.simpson(dtau_astro, s)
             return 1.086*tau
 
         elif dust_type.lower()=='astro+pah':
@@ -135,13 +149,13 @@ class isoCloud_profile(object):
             Qext_pah_V  = fQext_pah(0.55e-4)
 
             fastro_ext  = Qext_astro_V * np.pi *a*a * dn_da_astro
-            dtau_astro  = integrate.simps(fastro_ext, a) * n
+            dtau_astro  = integrate.simpson(fastro_ext, a) * n
 
             fpah_ext    = Qext_pah_V * np.pi *a*a * dn_da_pah
-            dtau_pah    = integrate.simps(fpah_ext, a) * n
+            dtau_pah    = integrate.simpson(fpah_ext, a) * n
 
             dtau = dtau_astro + dtau_pah
-            tau  = integrate.simps(dtau, s)
+            tau  = integrate.simpson(dtau, s)
             return 1.086*tau
 
         else:
@@ -169,15 +183,15 @@ class isoCloud_profile(object):
             # ds = s[1:]-s[:-1] #[len(n),] array
             #optical depth of silicate
             fsil_ext= Qext_sil_V * np.pi *a*a * dn_da_sil
-            dtau_sil = integrate.simps(fsil_ext, a) * n
+            dtau_sil = integrate.simpson(fsil_ext, a) * n
             #optical depth of carbon
             fgra_ext= Qext_car_V * np.pi *a*a * dn_da_gra
-            dtau_gra = integrate.simps(fgra_ext, a) * n
+            dtau_gra = integrate.simpson(fgra_ext, a) * n
             dtau = dtau_sil+dtau_gra
 
             # f = interp1d(s,dtau,axis=0)
             # tau = romberg(f,s[0],s[-1])[0]
-            tau = integrate.simps(dtau, s)
+            tau = integrate.simpson(dtau, s)
             # print('Av=',1.086*tau)
             return 1.086*tau
 
@@ -190,7 +204,7 @@ class isoCloud_profile(object):
             dn_da_astro=parent.dn_da_astro
 
             fastro_ext= Qext_astro * np.pi *a*a * dn_da_astro * n
-            dtau_astro = integrate.simps(fastro_ext, a)
+            dtau_astro = integrate.simpson(fastro_ext, a)
             return dtau_astro
 
         elif dust_type.lower()=='astro+pah':
@@ -201,10 +215,10 @@ class isoCloud_profile(object):
             dn_da_pah=parent.dn_da_pah
 
             fastro_ext= Qext_astro * np.pi *a*a * dn_da_astro * n
-            dtau_astro = integrate.simps(fastro_ext, a)
+            dtau_astro = integrate.simpson(fastro_ext, a)
 
             fpah_ext= Qext_pah * np.pi *a*a * dn_da_pah * n
-            dtau_pah = integrate.simps(fpah_ext, a)
+            dtau_pah = integrate.simpson(fpah_ext, a)
             return dtau_astro + dtau_pah
 
         else:
@@ -215,18 +229,18 @@ class isoCloud_profile(object):
 
             #optical depth of silicate
             fsil_ext= Qext_sil * np.pi *a*a * dn_da_sil * n
-            dtau_sil = integrate.simps(fsil_ext, a)
+            dtau_sil = integrate.simpson(fsil_ext, a)
             #optical depth of carbon
             fgra_ext= Qext_amCBE * np.pi *a*a * dn_da_gra * n
-            dtau_gra = integrate.simps(fgra_ext, a)
+            dtau_gra = integrate.simpson(fgra_ext, a)
             return dtau_sil+dtau_gra #I think, (dtau_sil+dtau_gra)*ds
 
     @auto_refresh
-    def get_map_Av(self,parent):
+    def get_map_Av_los(self,parent):
         def func_para(i,j):
             # print(self.X[i,j],self.Y[i,j])
             r0 = np.sqrt(self.X[i,j]*self.X[i,j]+self.Y[i,j]*self.Y[i,j])
-            return self.Av_func(parent,r0)
+            return self.Av_los_by_dust(parent,r0)
             # Av_map[i,j]=self.Av_func(r0)
             # return Av_map
 
@@ -301,7 +315,15 @@ class isoCloud_profile(object):
         self.f_max=parent.f_max
         self.a=parent.a
         self.na=parent.na
-
+        self.alpha=parent.alpha
+        self.Bfield = parent.Bfield
+        self.Ncl = parent.Ncl
+        self.phi_sp = parent.phi_sp
+        self.fp = parent.fp
+        self.align_func = parent.align_func
+        self.pstiff = parent.pstiff
+        self.verbose= False
+        
         self.isoCloud_model(parent)
         def func_para(i,j):
             r = np.sqrt(self.X[i,j]*self.X[i,j]+self.Z[i,j]*self.Z[i,j])
@@ -398,7 +420,7 @@ class isoCloud_profile(object):
         ##Note: r is the radial distance from center to the envelope
         # return lambda r: np.where(r<=Rflat, n0, n0*(r/Rflat)**(-2.0))
         # return lambda r: np.where(r<=Rflat, n0, n0*(r/Rflat)**(-3./2))
-        return lambda r: np.where(r<=Rflat, n0, n0*(r/Rflat)**(-p))
+        return lambda r: np.where(r<=Rflat, n0, n0 * (np.maximum(r,1e-30) / Rflat) ** (-p))
 
     @auto_refresh
     def U_starless(self,U0,Av):

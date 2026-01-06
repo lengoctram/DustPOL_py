@@ -11,6 +11,7 @@ def readD(filename,skipH,N_par):
     for j in range(skipH,len(data)):
         for i in range(N_par):
             dataf[i,j-skipH] = data[j][i]
+    file.close()
     return dataf
 
 # read text data - multile data combined
@@ -25,4 +26,5 @@ def readDC(filename,Header,skip,Nd,Nline,N_par):
         for j in range(Nline):
             for k in range(N_par):
                 dataf[k,j,i] = data[i*(Nline+skip)+skip+j][k]
+    file.close()
     return dataf

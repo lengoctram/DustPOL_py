@@ -5,24 +5,27 @@ import matplotlib.pyplot as plt
 from itertools import cycle
 from collections import OrderedDict
 
-# linestyles
-lsN = OrderedDict(
-                         [('solid',               (0, ())),
-                          ('loosely dotted',      (0, (1, 10))),
-                          ('dotted',              (0, (1, 5))),
-                          ('densely dotted',      (0, (1, 1))),
-                          
-                          ('loosely dashed',      (0, (5, 10))),
-                          ('dashed',              (0, (5, 5))),
-                          ('densely dashed',      (0, (5, 1))),
-                          
-                          ('loosely dashdotted',  (0, (3, 10, 1, 10))),
-                          ('dashdotted',          (0, (3, 5, 1, 5))),
-                          ('densely dashdotted',  (0, (3, 1, 1, 1))),
-                          
-                          ('loosely dashdotdotted', (0, (3, 10, 1, 10, 1, 10))),
-                          ('dashdotdotted',         (0, (3, 5, 1, 5, 1, 5))),
-                          ('densely dashdotdotted', (0, (3, 1, 1, 1, 1, 1)))])
+lsN                  = OrderedDict(
+                                 [
+                                  ('solid',               (0, ())),
+                                  ('dashed',              (0, (5, 5))),
+                                  # ('solid',               (0, ())),
+                                  ('dashdotted',          (0, (5, 4, 1, 6))),
+                                  ('dotted',              (0, (1, 5))),
+
+                                  ('loosely dashed',      (0, (5, 15))),
+                                  ('densely dashed',      (0, (5, 1))),
+                                  ('loosely dotted',      (0, (1, 10))),
+                                  ('densely dotted',      (0, (1, 1))), 
+                                  ('dashdotdotted',         (0, (3, 5, 1, 5, 1, 5))),
+
+                                  ('loosely dashdotted',  (0, (3, 10, 1, 10))),
+                                  ('densely dashdotted',  (0, (3, 1, 1, 1))),
+
+                                  ('loosely dashdotdotted', (0, (3, 10, 1, 10, 1, 10))),
+                                  ('densely dashdotdotted', (0, (3, 1, 1, 1, 1, 1)))])
+ls = list(lsN.keys())
+
 # configuration of plot
 lncycler = cycle(['solid','dashed','dashdot',lsN['dashdotdotted'],'dotted',lsN['loosely dashed']])
 symbcycler = cycle(['*','o','s','X','D','P','^'])
