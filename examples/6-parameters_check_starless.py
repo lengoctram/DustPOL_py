@@ -44,31 +44,6 @@ cbar.ax.tick_params(axis='y', color='cyan', which='both', labelcolor='black')
 ax.set_title('$a_{\\rm align}$ on OXZ plane')
 
 ##---------------------------------------------------------------------------##
-##Av_map from surface to cell on the OXZ plane
-Av_surface2cell = model.get_map_Av_surface2cell(args)
-
-fig,ax=plt.subplots(figsize=(8,8))
-im = plt.imshow(Av_surface2cell,interpolation='bilinear',origin='lower',
-                cmap='magma_r',norm=LogNorm(vmin=3,vmax=1000),extent=[x[0]/pc,x[-1]/pc,y[0]/pc,y[-1]/pc])
-# im = plt.imshow(Av_los,interpolation='bilinear',origin='lower',cmap='magma',extent=[x[0]/pc,x[-1]/pc,y[0]/pc,y[-1]/pc])
-t=[1,10,20,30,50]
-cbar=plt.colorbar(im,ax=ax,ticks=t,format='%.0f',shrink=0.8)
-# cbar=plt.colorbar(im,ax=ax,shrink=0.8)
-cbar.set_label('$\\rm A^{surface2cell}_{V}\\, (mag.)$')
-plt.xlabel('x/pc')
-plt.ylabel('z/pc')
-X, Z = np.meshgrid(x/pc, z/pc)
-CS = ax.contour(X, Z, Av_surface2cell,levels=[20,50,100,300,500,1000],colors='white')
-ax.clabel(CS, inline=True, fmt='%.0f', fontsize=15)
-# plt.xlim([-0.4,0.4])
-# plt.ylim([-0.4,0.4])
-##tick color --> white
-ax.tick_params(axis='x',color='w', which='both')
-ax.tick_params(axis='y',color='w', which='both')
-cbar.ax.tick_params(axis='y', color='cyan', which='both', labelcolor='black')
-ax.set_title('$A^{\\rm surface2cell}_{\\rm V}$ on OXZ plane')
-
-##---------------------------------------------------------------------------##
 ##Av_map on the OXY plane
 Av_los = model.get_map_Av_los(args)
 
