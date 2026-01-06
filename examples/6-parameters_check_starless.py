@@ -29,9 +29,9 @@ im = plt.imshow(align_*1e4,interpolation='bilinear',origin='lower',cmap='magma',
 t=[0.06,0.1,0.2,0.5,1.0]
 cbar=plt.colorbar(im,ax=ax,format='%.2f',shrink=0.8,ticks=t)
 # cbar=plt.colorbar(im,ax=ax,shrink=0.8)
-cbar.set_label('$\\sf a_{align}\\, (\\mu m)$')
-plt.xlabel('$\\sf x/pc$')
-plt.ylabel('$\\sf z/pc$')
+cbar.set_label('$\\rm a_{align}\\, (\\mu m)$')
+plt.xlabel('$\\rm x/pc$')
+plt.ylabel('$\\rm z/pc$')
 X, Z = np.meshgrid(x/pc, z/pc)
 CS = ax.contour(X, Z, align_*1e4,levels=[0.06,0.08,0.10,0.15,0.2,0.5],colors='white')
 ax.clabel(CS, inline=True, fmt='%.2f', fontsize=15)
