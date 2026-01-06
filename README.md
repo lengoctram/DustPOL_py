@@ -57,7 +57,9 @@ Manuals and GUI (not yet updated)
     
         make install
 
-        make clean to re-install
+  -- Note (to re-install
+  
+        make clean 
     
   - or
     
