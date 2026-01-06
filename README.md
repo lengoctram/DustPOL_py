@@ -26,9 +26,7 @@ Manuals and GUI (not yet updated)
 ** It is recommended to use a virtual environment to prevent conflicts with existing Python packages. **
 
 0- Silicon chip
-  
-  make install
-  
+  ```bash  
   conda create -n DustPOL_py
   
   conda activate DustPOL_py
@@ -36,6 +34,7 @@ Manuals and GUI (not yet updated)
   conda config --env --set subdir osx-arm64
   
   conda install python=3.12 (and other libraries)
+  ```
 
 0- Intel chip
   
