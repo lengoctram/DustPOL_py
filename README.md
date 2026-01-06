@@ -45,7 +45,7 @@ Manuals and GUI (not yet updated)
 
 - Clone:
   
-  ```bash git clone https://github.com/lengoctram/DustPOL_py.git```
+  ```git clone https://github.com/lengoctram/DustPOL_py.git```
 
 2- Go to the directory
 
