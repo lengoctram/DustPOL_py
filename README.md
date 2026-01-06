@@ -1,12 +1,18 @@
 ---
-title: "DustPOL-py: a numerical modeling for linear dust polarization"
+title: "DustPOL_py: a numerical modeling for linear dust polarization"
 ---
 
+<<<<<<< HEAD
 ## DustPOL-py - numerical modelling - v1.8
 DustPOL-py computes multi-wavelength polarization of starlight absorption and thermal dust emission based on:
 - Radiative Torque alignment (RAT-A)
 - Magnetically enhanced RAT (MRAT)
 - Radiative Torque Disruption (RAT-D)
+=======
+## DustPOL_py - numerical modelling - v1.6.1
+1- This numerical modelling calculates the multi-wavelength polarization degree of absorption and thermal dust emission 
+based on Radiative Torque alignment (RAT-A), Magnetically enhanced RAT (MRAT) and Radiative Torque Disruption (RAT-D).
+>>>>>>> 4ad41379c3820edee126c92f21d13cd2afe0bd9c
 
 Features
 - Polarization spectra for diffuse ISM, molecular clouds, dense cores, protostars (POS and LOS).
@@ -44,10 +50,19 @@ For Intel chip
   In principle
       make install
 
+<<<<<<< HEAD
   Otherwise, try
       pip install .
   or
       pip install -e .
+=======
+** It is recommended to use a virtual environment to prevent conflicts with existing Python packages. **
+For instance:
+     
+     conda create -n DustPOL_py
+     conda activate DustPOL_py
+     conda install python, numpy, matplotlib, ...
+>>>>>>> 4ad41379c3820edee126c92f21d13cd2afe0bd9c
 
 ## Authors
 ```Le Ngoc Tram```, Hyeseung Lee, and Thiem Hoang

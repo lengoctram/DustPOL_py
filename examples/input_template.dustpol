@@ -3,15 +3,15 @@
 ! ENVIRONMENT SETTING
 !--------------------------------------------------------------------------------------------
 output_dir     output   !directory for the output files
-ratd           False    !True: turn on RAT-D
+ratd           True     !True: turn on RAT-D
 !--------------------------------------------------------------------------------------------
 ! ISOLATED CLOUD
 !--------------------------------------------------------------------------------------------
 Lstar          None     !luminosity of the central source
 p              None     !power-index for profiling gas volume density (n~r^-p)
 rin            None     ![au]: inner radius
-rout           None     ![au]: outer radius
-rflat          None     ![au]: flat radius (r<r0: n=n0=const.)
+rout           None     ![au]: outer radius #624e6 (test Pipe-109)
+rflat          None     ![au]: flat radius (r<r0: n=n0=const.) #17000 (test Pipe-109)
                         !                   r>r0: n~r^{-p}
 nsample        None     !number of points sampling from rin -> rout
 !--------------------------------------------------------------------------------------------

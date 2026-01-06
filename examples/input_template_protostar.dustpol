@@ -1,17 +1,17 @@
-!!!! Template--modifications can be made for different targets
+!!!! Template--modifications must be made for different targets
 !--------------------------------------------------------------------------------------------
 ! ENVIRONMENT SETTING
 !--------------------------------------------------------------------------------------------
-output_dir     output   !directory for the output files
+output_dir     output_Lstar=1e5   !directory for the output files
 ratd           True     !True: turn on RAT-D
 !--------------------------------------------------------------------------------------------
 ! ISOLATED CLOUD
 !--------------------------------------------------------------------------------------------
 Lstar          1e5      !luminosity of the central source
-p              2.4      !power-index for profiling gas volume density (a cylindrical profile)
+p              2.4      !power-index for profiling gas volume density (n~r^-p)
 rin            1700.    ![au]: inner radius
-rout           9.06e5   ![au]: outer radius
-rflat          2.06e4   ![au]: flat radius (r<r0: n=n0=const.)
+rout           9.06e5   ![au]: outer radius #624e6 (test Pipe-109)
+rflat          2.06e4   ![au]: flat radius (r<r0: n=n0=const.) #17000 (test Pipe-109)
                         !                   r>r0: n~r^{-p}
 nsample        200      !number of points sampling from rin -> rout
 !--------------------------------------------------------------------------------------------
@@ -60,7 +60,7 @@ Ncl             10.     ! if RATalign==MRAT
 phi_sp          0.1     !     * phi_sp: volume fitting factor of iron cluster (0.1=10%) 
 fp              0.1     !     * fp: Iron fraction of PM grains
 !--------------------------------------------------------------------------------------------
-! DUST LAYERS
+! DUST LAYERS (multi-dust layer is disabled in this version -- if needed, please use version_1.5]
 !--------------------------------------------------------------------------------------------
 model_layer     1       ! number of dust layer along the LOS [1,2]
 fheat           4.5       ! if model_layer==2:

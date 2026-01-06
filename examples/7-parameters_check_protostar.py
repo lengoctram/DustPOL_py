@@ -1,4 +1,4 @@
-"""THIS ROUTINE IS FOR CHECKING THE MAP OF A_ALIGN AND AV
+"""This routine is a test for the map of the gas volumn density 
 """
 
 import numpy as np 
