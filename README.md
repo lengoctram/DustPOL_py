@@ -53,9 +53,11 @@ Manuals and GUI (not yet updated)
 
 3- From the terminal, type
 
-  - recommended
+  - recommended (if ```make``` works)
     
         make install
+
+      ```make clean to re-install`` 
     
   - or
     
