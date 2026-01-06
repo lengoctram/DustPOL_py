@@ -97,7 +97,7 @@ Pham N. Diep, Nguyen B. Ngoc, Bao Truong, Ngan Lê
 Please reach out to us at <nle@strw.leidenuniv.nl>
 
 macOS multiprocessing notes
-- On macOS (Ventura/Sonoma), Python uses “spawn”. Interactive IPython/Jupyter sessions may fail with ProcessPoolExecutor due to __main__.__spec__=None.
+- On macOS, Python might use “spawn”. Interactive IPython/Jupyter sessions may fail with ProcessPoolExecutor due to __main__.__spec__=None.
 - Solutions:
   - Run scripts as modules (python examples/4-2-basic_model_protostar_POS.py) under a main guard.
   - In interactive environments, the library can fallback to joblib backend='loky'.
