@@ -28,8 +28,11 @@ Manuals and GUI (not yet updated)
 0- Silicon chip
   
   conda create -n DustPOL_py
+  
   conda activate DustPOL_py
+  
   conda config --env --set subdir osx-arm64
+  
   conda install python=3.12 (and other libraries)
 
 0- Intel chip
