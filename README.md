@@ -34,14 +34,12 @@ Manuals and GUI (not yet updated)
   ```
 
 0- Intel chip
-  
+  ```bash
   conda create -n DustPOL_py
-  
   conda activate DustPOL_py
-  
   conda config --env --set subdir osx-64
-  
-  conda install python=3.12, numpy, matplotlib, ...
+  conda install python=3.12 (and other libraries)
+  ```
 
 1- Download the source files
 
