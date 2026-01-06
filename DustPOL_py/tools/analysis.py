@@ -360,36 +360,36 @@ def plot_pl(filenames,av_range=None,ax=None,**plot_kwargs):
 			interp_arr = interpolate.interpn((Av_sort,w), data_sort.T, interp_points)
 			##check for negative values
 			interp_arr[interp_arr<0]=np.nan
-			ax.semilogx(w,interp_arr/iav,ls=ls[keys[i]],**plot_kwargs,label='$\\sf A_{V}=%.0f$'%iav)
+			ax.semilogx(w,interp_arr/iav,ls=ls[keys[i]],**plot_kwargs,label='$\\rm A_{V}=%.0f$'%iav)
 		elif 'emi' in filenames:
 			sort_indices = np.argsort(Av_)
 			Av_sort   = Av_[sort_indices]
 			data_sort = data_[:,1:][:,::2][:,sort_indices]
 
 			interp_arr = interpolate.interpn((Av_sort,w), data_sort.T, interp_points)
-			ax.semilogx(w,interp_arr,ls=ls[keys[i]],**plot_kwargs,label='$\\sf A_{V}=%.0f$'%iav)
+			ax.semilogx(w,interp_arr,ls=ls[keys[i]],**plot_kwargs,label='$\\rm A_{V}=%.0f$'%iav)
 
 	# if float(alpha<1):
-	#     plt.text(0.8, 0.73, '$\\sf prolate\\, grain: s=1/3$', horizontalalignment='center', verticalalignment='center', transform=ax.transAxes)
+	#     plt.text(0.8, 0.73, '$\\rm prolate\\, grain: s=1/3$', horizontalalignment='center', verticalalignment='center', transform=ax.transAxes)
 	# else:
-	#     plt.text(0.8, 0.73, '$\\sf oblate\\, shape: s=2$', horizontalalignment='center', verticalalignment='center', transform=ax.transAxes)
-	# plt.text(0.8, 0.7, '$\\sf f_{max}=%.1f$'%(f_max), horizontalalignment='center', verticalalignment='center', transform=ax.transAxes)
-	ax.set_xlabel('$\\sf Wavelength\\, (\\mu m)$')
+	#     plt.text(0.8, 0.73, '$\\rm oblate\\, shape: s=2$', horizontalalignment='center', verticalalignment='center', transform=ax.transAxes)
+	# plt.text(0.8, 0.7, '$\\rm f_{max}=%.1f$'%(f_max), horizontalalignment='center', verticalalignment='center', transform=ax.transAxes)
+	ax.set_xlabel('$\\rm Wavelength\\, (\\mu m)$')
 	if 'abs' in filenames:
-		ax.text(0.8, 0.9, '$\\sf aligned\\, grain: %s$'%dust_type, horizontalalignment='center', verticalalignment='center', transform=ax.transAxes)
+		ax.text(0.8, 0.9, '$\\rm aligned\\, grain: %s$'%dust_type, horizontalalignment='center', verticalalignment='center', transform=ax.transAxes)
 		try:
-			ax.text(0.8, 0.8, '$\\sf a_{max}=%.2f\\, \\mu m$'%params['amax'], horizontalalignment='center', verticalalignment='center', transform=ax.transAxes)
+			ax.text(0.8, 0.8, '$\\rm a_{max}=%.2f\\, \\mu m$'%params['amax'], horizontalalignment='center', verticalalignment='center', transform=ax.transAxes)
 		except:
 			ax.text(0,0,[])
-		ax.set_ylabel('$\\sf p_{ext}/A_{V}\\,(\\%/mag.)$')
+		ax.set_ylabel('$\\rm p_{ext}/A_{V}\\,(\\%/mag.)$')
 		ax.legend(loc='upper right',bbox_to_anchor=(0.93,0.8),frameon=False)
 	elif 'emi' in filenames:
-		ax.text(0.2, 0.9, '$\\sf aligned\\, grain: %s$'%dust_type.lower(), horizontalalignment='center', verticalalignment='center', transform=ax.transAxes)
+		ax.text(0.2, 0.9, '$\\rm aligned\\, grain: %s$'%dust_type.lower(), horizontalalignment='center', verticalalignment='center', transform=ax.transAxes)
 		try:
-			ax.text(0.2, 0.8, '$\\sf a_{max}=%.2f\\, \\mu m$'%params['amax'], horizontalalignment='center', verticalalignment='center', transform=ax.transAxes)
+			ax.text(0.2, 0.8, '$\\rm a_{max}=%.2f\\, \\mu m$'%params['amax'], horizontalalignment='center', verticalalignment='center', transform=ax.transAxes)
 		except:
 			ax.text(0,0,[])
-		ax.set_ylabel('$\\sf p_{em}\\,(\\%)$')
+		ax.set_ylabel('$\\rm p_{em}\\,(\\%)$')
 		ax.legend(loc='lower left',bbox_to_anchor=(0.05,0.1),frameon=False)
 
 	# plt.ylim([1e-26,5e-21])
@@ -458,7 +458,7 @@ def plot_pav(filenames,wavelength=850,ax=None,log_scale=True,show_break=False,ge
 		new_data_=f_ip(new_Av_)#*np.sin(30.*np.pi/180)*np.sin(30.*np.pi/180)
 
 		if 'abs' in filename:
-			#plt.loglog(Av_,data_/Av_,color='k',ls=ls[keys[i]],label='$\\sf a_{max}=%.1f\\, \\mu m$'%(amax))
+			#plt.loglog(Av_,data_/Av_,color='k',ls=ls[keys[i]],label='$\\rm a_{max}=%.1f\\, \\mu m$'%(amax))
 			if (log_scale):
 				ax.loglog(new_Av_,new_data_/new_Av_,ls=ls[keys[i]],**plot_kwargs,label='$\\rm a_{max}=%.2f\\, \\mu m$'%(amax))
 			else:
@@ -488,7 +488,7 @@ def plot_pav(filenames,wavelength=850,ax=None,log_scale=True,show_break=False,ge
 			data_sort = data_[sort_indices]
 			if (log_scale):
 				ax.loglog(Av_sort,data_sort,ls=ls[keys[i]],**plot_kwargs,label='$\\rm a_{max}=%.2f\\, \\mu m$'%(amax))
-				# plt.loglog(new_Av_,new_data_,color='k',ls=ls[keys[i]],label='$\\sf a_{max}=%.1f\\, \\mu m$'%(amax))
+				# plt.loglog(new_Av_,new_data_,color='k',ls=ls[keys[i]],label='$\\rm a_{max}=%.1f\\, \\mu m$'%(amax))
 			else:
 				ax.plot(Av_sort,data_sort,ls=ls[keys[i]],**plot_kwargs,label='$\\rm a_{max}=%.2f\\, \\mu m$'%(amax))
 			x=np.log10(Av_sort)#[Av_>=1.5])
@@ -607,7 +607,7 @@ def plot_pNH(filenames,wavelength=850,ax=None,log_scale=True,show_break=False,ge
 		new_data_=f_ip(new_NH_)#*np.sin(30.*np.pi/180)*np.sin(30.*np.pi/180)
 
 		if 'abs' in filename:
-			#plt.loglog(Av_,data_/Av_,color='k',ls=ls[keys[i]],label='$\\sf a_{max}=%.1f\\, \\mu m$'%(amax))
+			#plt.loglog(Av_,data_/Av_,color='k',ls=ls[keys[i]],label='$\\rm a_{max}=%.1f\\, \\mu m$'%(amax))
 			if (log_scale):
 				ax.loglog(new_NH_,new_data_/new_NH_,ls=ls[keys[i]],**plot_kwargs,label='$\\rm a_{max}=%.2f\\, \\mu m$'%(amax))
 			else:
@@ -637,7 +637,7 @@ def plot_pNH(filenames,wavelength=850,ax=None,log_scale=True,show_break=False,ge
 			data_sort = data_[sort_indices]
 			if (log_scale):
 				ax.loglog(NH_sort,data_sort,ls=ls[keys[i]],**plot_kwargs,label='$\\rm a_{max}=%.2f\\, \\mu m$'%(amax))
-				# plt.loglog(new_Av_,new_data_,color='k',ls=ls[keys[i]],label='$\\sf a_{max}=%.1f\\, \\mu m$'%(amax))
+				# plt.loglog(new_Av_,new_data_,color='k',ls=ls[keys[i]],label='$\\rm a_{max}=%.1f\\, \\mu m$'%(amax))
 			else:
 				ax.plot(NH_sort,data_sort,ls=ls[keys[i]],**plot_kwargs,label='$\\rm a_{max}=%.2f\\, \\mu m$'%(amax))
 			x=np.log10(NH_sort)#[Av_>=1.5])
@@ -738,7 +738,7 @@ def plot_pI(filenames,wavelength,ax=None,show_break=False,get_info=False,**plot_
 		data_sort = data_[sort_indices]
 
 		ax.loglog(I_sort/I_sort.max(),data_sort,ls=ls[keys[i]],**plot_kwargs,label='$\\rm a_{max}=%.1f\\, \\mu m$'%(amax))
-		# plt.loglog(new_I_/new_I_.max(),new_data_,color='k',ls=ls[keys[i]],label='$\\sf a_{max}=%.1f\\, \\mu m$'%(amax))
+		# plt.loglog(new_I_/new_I_.max(),new_data_,color='k',ls=ls[keys[i]],label='$\\rm a_{max}=%.1f\\, \\mu m$'%(amax))
 
 		x=np.log10(I_sort/I_sort.max())#[Av_>=1.5])
 		y=np.log10(data_sort)#[Av_>=1.5])
@@ -761,7 +761,7 @@ def plot_pI(filenames,wavelength,ax=None,show_break=False,get_info=False,**plot_
 	# p_loss=pow(I_loss,-1)
 	# plt.plot(I_loss[p_loss<=10],1.5*p_loss[p_loss<=10],color='gray')
 	# fp_loss = interp1d(I_loss,p_loss)
-	# plt.text(0.35, fp_loss(0.35)+2.0, '$\\sf I^{-1}$', color='gray', horizontalalignment='center', verticalalignment='center',rotation=-55)
+	# plt.text(0.35, fp_loss(0.35)+2.0, '$\\rm I^{-1}$', color='gray', horizontalalignment='center', verticalalignment='center',rotation=-55)
 
 	ax.text(0.7, 0.9, '$\\rm \\lambda= %.0f\\, \\mu m$'%(wavelength), horizontalalignment='center', verticalalignment='center', transform=ax.transAxes)
 	ax.text(0.7, 0.83, '$\\rm aligned\\, grain: %s$'%dust_type.lower(), horizontalalignment='center', verticalalignment='center', transform=ax.transAxes)
@@ -863,7 +863,7 @@ def plot_lamav(filenames,ax=None,**plot_kwargs):
 
 	ax.set_xlabel('$\\rm A_{V}\\, (mag.)$')
 	ax.text(0.27, 0.9, '$\\rm aligned\\, grain: %s$'%dust_type.lower(), horizontalalignment='center', verticalalignment='center', transform=ax.transAxes)
-	# ax.text(0.25, 0.85, '$\\sf a_{max}=%.2f\\, \\mu m$'%amax, horizontalalignment='center', verticalalignment='center', transform=ax.transAxes)
+	# ax.text(0.25, 0.85, '$\\rm a_{max}=%.2f\\, \\mu m$'%amax, horizontalalignment='center', verticalalignment='center', transform=ax.transAxes)
 	ax.set_ylabel('$\\rm \\lambda_{max}\\,(\\mu m)$')
 	ax.legend(loc='lower right',bbox_to_anchor=(0.93,0.4),frameon=False)
 
