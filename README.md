@@ -24,15 +24,24 @@ Manuals and GUI (not yet updated)
 
 ## Installation
 ** It is recommended to use a virtual environment to prevent conflicts with existing Python packages. **
+
 0- Silicon chip
   conda create -n DustPOL_py
+  
   conda activate DustPOL_py
+  
   conda config --env --set subdir osx-arm64
+  
   conda install python=3.12, numpy, matplotlib, ...
+
 0- Intel chip
+  
   conda create -n DustPOL_py
+  
   conda activate DustPOL_py
+  
   conda config --env --set subdir osx-64
+  
   conda install python=3.12, numpy, matplotlib, ...
 
 1- Download the source files
