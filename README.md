@@ -1,8 +1,8 @@
 ---
-title: "DustPOL-py: a numerical modeling for linear dust polarization"
+title: "DustPOL_py: a numerical modeling for linear dust polarization"
 ---
 
-## DustPOL-py - numerical modelling - v1.8
+## DustPOL_py - numerical modelling - v1.8
 DustPOL-py computes multi-wavelength polarization of starlight absorption and thermal dust emission based on:
 - Radiative Torque alignment (RAT-A)
 - Magnetically enhanced RAT (MRAT)
