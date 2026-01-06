@@ -51,7 +51,7 @@ Manuals and GUI (not yet updated)
 
 2- Go to the directory
 
-    cd DustPOL_py-main
+      cd DustPOL_py-main
 
 3- From the terminal, type
 
