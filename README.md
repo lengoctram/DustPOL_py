@@ -11,6 +11,7 @@ DustPOL_py computes multi-wavelength polarization of starlight absorption and th
 
 Features
 - Polarization spectra for diffuse ISM, molecular clouds, dense cores, protostars (POS and LOS).
+- Wavelength coverage: from far-UV to near-/mid-/far-IR and to submm bands
 - Built-in analysis and plotting routines.
 - High-performance computation (ProcessPoolExecutor or joblib), with fallbacks.
 - Flexible parameter overrides via code for fitting workflows.
