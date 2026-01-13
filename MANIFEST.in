@@ -3,7 +3,7 @@ include DustPOL_py/data/*.DAT
 include DustPOL_py/data/*.dat
 include DustPOL_py/data/astrodust/*.DAT
 include DustPOL_py/data/sil_car/*.DAT
-include DustPOL_py/data/sil_car/dp_dlnT/U=*/*.RES
+include DustPOL_py/data/sil_car/dp_dlnT/U=*.RES
 include DustPOL_py/data/PAHs/*.DAT
 include DustPOL_py/data/PAHs/dp_dlnT/*.RES
 include DustPOL_py/data/Mathis83/*.dat
