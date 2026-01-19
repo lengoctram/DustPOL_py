@@ -107,11 +107,13 @@ def Qext_grain(data,w_new,a_new,dusttype,alpha):
         
         Qext= (2.*Qabs2 +Qabs1)/3. +(2.*Qsca2 +Qsca1)/3.
         Qabs= (2.*Qabs2 +Qabs1)/3.
-        Qpol = 1./2*(Qabs2-Qabs1) #thermal dust polarization (Cabs_pol in HD23)
+        Qpol = 1./2 * 1./2*(Qabs2-Qabs1) #thermal dust polarization (Cabs_pol in HD23)
+                                         #the factor of 1/2 is due to the difference between 
+                                         #prolate and oblate grains in the cross-section calculation
 
         Qext1=Qabs1 +Qsca1
         Qext2=Qabs2 +Qsca2
-        Qpol_abs = 1./2*(Qext2-Qext1) #extinction polarization (Cext_pol in HD23)
+        Qpol_abs = 1./2 * 1./2*(Qext2-Qext1) #extinction polarization (Cext_pol in HD23)
         Qabs_y = Qabs2 # along y-axis of grain
         Qabs_x = Qabs1 # along x-axis of grain
         
