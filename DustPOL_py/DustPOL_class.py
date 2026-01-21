@@ -250,7 +250,7 @@ class DustPOL:
         self.parallel = params.parallel       #[option] parallelization calculation
         if (self.parallel):
             self.max_workers = params.max_workers    #[if parallel]: numbers of CPU cores
-        self.verbose = False
+        self.verbose = kwargs.get("verbose", False)  #[option] to print out the log info
         self.Urange_tempdist=[]
 
         # Parameters for isolated cloud
@@ -312,7 +312,7 @@ class DustPOL:
         self.get_grainsize_wavelength() ## -->> wavelength (self.w) and grain size (self.a)
         
         # ------- Update grain size (if RAT-D occurs)  ------- 
-        self.update_grain_size(self.a,verbose=False) ## -->> update self.a
+        self.update_grain_size(self.a,verbose=self.verbose)## -->> update self.a
 
         # ------- Initialization grain-size distribution -------
         self.grain_size_distribution()  # update self.a -->> update self.dnda

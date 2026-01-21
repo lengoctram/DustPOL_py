@@ -63,21 +63,42 @@ class radiative_disruption():
     def a_disrupt(self,a_size):
         wd = 2./a_size * sqrt(self.Smax/self.rho)
         wr = wRAT(self.U,self.u_ISRF,a_size,self.ngas,self.Tgas,self.mean_lam,self.gamma,self.rho)
-        ratio = wr/wd
-        try:
-            idd  = max(where(ratio<=1)[0])
-            acrit=a_size[idd+1]
-            if (self.verbose):
+        # ratio = wr/wd
+        
+        # finding the critical size where wr >= wd
+        diff = wr - wd
+        idd = np.where(diff[:-1] * diff[1:] <= 0)[0]
+        if len(idd)>0:
+            acrit = a_size[idd[0]+1]
+            disrupt = True
+        elif len(idd)==0:
+            lmax=max(np.where(a_size<=self.amax+0.1*self.amax)[0])
+            acrit = a_size[lmax]
+            disrupt = False
+            
+        else:
+            raise ValueError('Error in finding disrupted size!')
+        
+        if (self.verbose):
+            print('   *** Radiative torque disruption initialized.')
+            print('       - U = %.2e'%(self.U))
+            print('       - amax = %.2f(um)'%(self.amax*1e4))
+            print('       - n_gas = %.2e(cm^-3)'%(self.ngas))
+            print('       - T_gas = %.2f(K)'%(self.Tgas))
+            print('       - mean_lam = %.2f(um)'%(self.mean_lam*1e4))
+            print('       - gamma = %.2f'%(self.gamma))
+            print('       - Smax = %.2e(erg cm^-3)'%(self.Smax))
+            print('       - rho = %.2f(g cm^-3)'%(self.rho))
+        
+            if (disrupt):
                 log.info('   *** Checking disruption: \033[1;36m occured \033[0m')
                 # log.info('   *** a_disr = %.2f(um)'%(acrit*1e4))
                 if (acrit>self.amax):
-                    log.info('   *** a_disr = %.2f(um) > amax= %.2f'%(acrit*1e4,self.amax*1e4))
+                    log.warning('   *** a_disr = %.2f(um) > amax= %.2f'%(acrit*1e4,self.amax*1e4))
                 else:
                     log.info('   *** a_disr = %.2f(um)'%(acrit*1e4))
-        except:
-            lmax=max(where(a_size<=self.amax+0.1*self.amax)[0])
-            acrit = a_size[lmax]
-            if (self.verbose):
+            else:
                 log.info('   *** Checking disruption: \033[1;36m no \033[0m')
+                log.info('   *** a_disr == amax= %.2f(um)'%(self.amax*1e4))
 
         return acrit
