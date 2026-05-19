@@ -14,7 +14,7 @@ from scipy.special import erf
 #	aef = effective grain size
 #	sizedist = 'MRN', 'WD01', 'DL07'
 # output:
-#	dnda
+#	1/ngas * dnda
 # ------------------------------------------------------
 
 # mgas =2*1.3*1.6605402e-24 #atomic mass unit #90%H + 10%He

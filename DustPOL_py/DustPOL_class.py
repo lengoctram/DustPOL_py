@@ -2,7 +2,9 @@
 import numpy as np
 import time,copy,os
 import scipy.integrate as integrate
+import matplotlib.pyplot as plt
 # import atexit
+import hashlib
 from joblib import Memory
 import warnings
 import concurrent.futures
@@ -24,6 +26,7 @@ from . import DustPOL_io
 from . import constants
 from . import isoCloud_class
 from . import isoProtostar_class
+from . import isoAGB_class
 from . import extcurves
 from . import tools
 from .tools import analysis, fitting
@@ -43,7 +46,7 @@ def _isoCloud_los_worker(args):
     return exe.isoCloud_los(r0, progress=progress, get_info=get_info)
 
 class DustPOL:
-    """This is the main routine of the DustPOL-py
+    """This is the main routine of the DustPOL_py
         Inputs:
         -------
             These args are passed from the input file or override from the manual setup
@@ -72,16 +75,16 @@ class DustPOL:
         from DustPOL_py import DustPOL
         exe = DustPOL(input_file)
         
-        exe.extinction()   <<-- to compute the dust extinction curve
-        exe.SED_dust()     <<-- to compute the dust continuum SED
-        exe.cal_pol_abs()  <<-- to compute the degree of absorption polarisation 
-        exe.cal_pol_emi()  <<-- to compute the degree of emisison polarisation
+        exe.extinction(args)       <<-- to compute the dust extinction curve
+        exe.SED_dust(args)         <<-- to compute the dust continuum SED
+        exe.cal_pol_abs(args)      <<-- to compute the degree of absorption polarisation 
+        exe.cal_pol_emi(args)      <<-- to compute the degree of emisison polarisation
 
-        exe.isoCloud_los() <<-- Starless core with the line of sight
-        exe.isoCloud_pos() <<-- Starless core on position of sky
-        exe.isoProtostar_los() <<-- Protostar with the line of sight
-        exe.isoProtostar_pos() <<-- Protostar on position of sky
-        
+        exe.isoCloud_los(args)     <<-- Starless core with the line of sight
+        exe.isoCloud_pos(args)     <<-- Starless core on position of sky
+        exe.isoProtostar_los(args) <<-- Protostar with the line of sight
+        exe.isoProtostar_pos(args) <<-- Protostar on position of sky
+
         "To override the input parameters" <<-- this is useful for the fitting
         e.g.: to replace the value of U=10
                     exe = DustPOL(input_file,U=10)
@@ -164,56 +167,56 @@ class DustPOL:
         self.alpha            = kwargs.get("alpha", params.alpha)              #No-unit
         self.rho              = kwargs.get("rho", params.rho)                  #g cm-3
          
-        self.U           = kwargs.get("U", params.U)                     # No-unit
-        self.gamma       = kwargs.get("gamma", params.gamma)             # No-unit
-        self.mean_lam    = kwargs.get("mean_lam", params.mean_lam)       # cm
-        self.Tgas        = kwargs.get("Tgas", params.Tgas)               # K
-        self.Tdust       = kwargs.get("Tdust", params.Tdust)             # K
-        self.ngas        = kwargs.get("ngas", params.ngas)               # cm-3
-        self.Smax        = kwargs.get("Smax", params.Smax)               # erg cm-3
-        self.amin        = kwargs.get("amin", params.amin)               # cm
-        self.amax        = kwargs.get("amax", params.amax)               # cm
+        self.U                = kwargs.get("U", params.U)                     # No-unit
+        self.gamma            = kwargs.get("gamma", params.gamma)             # No-unit
+        self.mean_lam         = kwargs.get("mean_lam", params.mean_lam)       # cm
+        self.Tgas             = kwargs.get("Tgas", params.Tgas)               # K
+        self.Tdust            = kwargs.get("Tdust", params.Tdust)             # K
+        self.ngas             = kwargs.get("ngas", params.ngas)               # cm-3
+        self.Smax             = kwargs.get("Smax", params.Smax)               # erg cm-3
+        self.amin             = kwargs.get("amin", params.amin)               # cm
+        self.amax             = kwargs.get("amax", params.amax)               # cm
 
         # Grain size distribution parameters
-        self.GSD_law     = kwargs.get("GSD_law", params.GSD_law)          #[option]
-        self.power_index = kwargs.get("power_index", params.power_index) #No-unit
+        self.GSD_law          = kwargs.get("GSD_law", params.GSD_law)          #[option]
+        self.power_index      = kwargs.get("power_index", params.power_index) #No-unit
         
         ### Astrodust size distribution parameter for GSD_law='HD23'        
-        self.BAd         = kwargs.get("BAd",params.BAd) 
-        self.a0Ad        = kwargs.get("a0Ad",params.a0Ad) 
-        self.sigmaAd     = kwargs.get("sigmaAd",params.sigmaAd)
-        self.A0 = kwargs.get("A0",params.A0) 
-        self.A1 = kwargs.get("A1",params.A1)
-        self.A2 = kwargs.get("A2",params.A2)
-        self.A3 = kwargs.get("A3",params.A3)
-        self.A4 = kwargs.get("A4",params.A4)
-        self.A5 = kwargs.get("A5",params.A5)
+        self.BAd              = kwargs.get("BAd",params.BAd) 
+        self.a0Ad             = kwargs.get("a0Ad",params.a0Ad) 
+        self.sigmaAd          = kwargs.get("sigmaAd",params.sigmaAd)
+        self.A0               = kwargs.get("A0",params.A0) 
+        self.A1               = kwargs.get("A1",params.A1)
+        self.A2               = kwargs.get("A2",params.A2)
+        self.A3               = kwargs.get("A3",params.A3)
+        self.A4               = kwargs.get("A4",params.A4)
+        self.A5               = kwargs.get("A5",params.A5)
         ### PAHs size distribution parameter for GSD_law='HD23'
-        self.B1 = kwargs.get("B1",params.B1) 
-        self.B2 = kwargs.get("B2",params.B2)
-        
-        ### Parameters for WD01 size distribution (sil==silicate, car==carbon)
-        self.alpha_wd01_sil = kwargs.get("alpha_wd01_sil",params.alpha_wd01_sil) 
-        self.beta_wd01_sil  = kwargs.get("beta_wd01_sil",params.beta_wd01_sil)
-        self.at_wd01_sil    = kwargs.get("at_wd01_sil",params.at_wd01_sil)
-        self.ac_wd01_sil    = kwargs.get("ac_wd01_sil",params.ac_wd01_sil)
-        self.Cs_wd01_sil    = kwargs.get("Cs_wd01_sil",params.Cs_wd01_sil)
-        self.a01_wd01_sil   = params.a01_wd01_sil
-        self.a02_wd01_sil   = params.a02_wd01_sil
-        self.sigma_wd01_sil = params.sigma_wd01_sil
-        self.B1_wd01_sil    = params.B1_wd01_sil
-        self.B2_wd01_sil    = params.B2_wd01_sil
+        self.B1               = kwargs.get("B1",params.B1) 
+        self.B2               = kwargs.get("B2",params.B2)
 
-        self.alpha_wd01_car = kwargs.get("alpha_wd01_car",params.alpha_wd01_car) 
-        self.beta_wd01_car  = kwargs.get("beta_wd01_car",params.beta_wd01_car)
-        self.at_wd01_car    = kwargs.get("at_wd01_car",params.at_wd01_car)
-        self.ac_wd01_car    = kwargs.get("ac_wd01_car",params.ac_wd01_car)
-        self.Cs_wd01_car    = kwargs.get("Cs_wd01_car",params.Cs_wd01_car)
-        self.a01_wd01_car   = kwargs.get("a01_wd01_car",params.a01_wd01_car)
-        self.a02_wd01_car   = kwargs.get("a02_wd01_car",params.a02_wd01_car)
-        self.sigma_wd01_car = kwargs.get("sigma_wd01_car",params.sigma_wd01_car)
-        self.B1_wd01_car    = kwargs.get("B1_wd01_car",params.B1_wd01_car)
-        self.B2_wd01_car    = kwargs.get("B2_wd01_car",params.B2_wd01_car)
+        ### Parameters for WD01 size distribution (sil==silicate, car==carbon)
+        self.alpha_wd01_sil   = kwargs.get("alpha_wd01_sil",params.alpha_wd01_sil) 
+        self.beta_wd01_sil    = kwargs.get("beta_wd01_sil",params.beta_wd01_sil)
+        self.at_wd01_sil      = kwargs.get("at_wd01_sil",params.at_wd01_sil)
+        self.ac_wd01_sil      = kwargs.get("ac_wd01_sil",params.ac_wd01_sil)
+        self.Cs_wd01_sil      = kwargs.get("Cs_wd01_sil",params.Cs_wd01_sil)
+        self.a01_wd01_sil     = params.a01_wd01_sil
+        self.a02_wd01_sil     = params.a02_wd01_sil
+        self.sigma_wd01_sil   = params.sigma_wd01_sil
+        self.B1_wd01_sil      = params.B1_wd01_sil
+        self.B2_wd01_sil      = params.B2_wd01_sil
+
+        self.alpha_wd01_car   = kwargs.get("alpha_wd01_car",params.alpha_wd01_car) 
+        self.beta_wd01_car    = kwargs.get("beta_wd01_car",params.beta_wd01_car)
+        self.at_wd01_car      = kwargs.get("at_wd01_car",params.at_wd01_car)
+        self.ac_wd01_car      = kwargs.get("ac_wd01_car",params.ac_wd01_car)
+        self.Cs_wd01_car      = kwargs.get("Cs_wd01_car",params.Cs_wd01_car)
+        self.a01_wd01_car     = kwargs.get("a01_wd01_car",params.a01_wd01_car)
+        self.a02_wd01_car     = kwargs.get("a02_wd01_car",params.a02_wd01_car)
+        self.sigma_wd01_car   = kwargs.get("sigma_wd01_car",params.sigma_wd01_car)
+        self.B1_wd01_car      = kwargs.get("B1_wd01_car",params.B1_wd01_car)
+        self.B2_wd01_car      = kwargs.get("B2_wd01_car",params.B2_wd01_car)
 
         # Radiation field parameters if Tdust is given
         if self.U is None:
@@ -1727,10 +1730,286 @@ class DustPOL:
         if end_time-start_time<60:
             log.info('  -> Time for execution is %.2f secs'%(end_time-start_time))
         elif end_time-start_time<3600:
-            print('  -> Time for execution is %.2f mins'%((end_time-start_time)/60))
+            log.info('  -> Time for execution is %.2f mins'%((end_time-start_time)/60))
         else:
-            print('  -> Time for execution is %.2f hrs'%((end_time-start_time)/60/60))
+            log.info('  -> Time for execution is %.2f hrs'%((end_time-start_time)/60/60))
                     
+    def _dtau_cache_key(self, rr, partial_alignment):
+        """Build a compact hash key for parameters that affect the local optical depth calculation (dtau)
+        """
+        items = (
+            str(self.dust_type),
+            str(self.GSD_law),
+            str(self.ratd),
+            str(self.sampling_type),
+            str(partial_alignment),
+            len(rr),
+            np.round(np.log10(rr.min()), 5),
+            np.round(np.log10(rr.max()), 5),
+            np.round(np.log10(self.Mloss), 5),
+            np.round(np.log10(self.Rstar), 5),
+            np.round(np.log10(self.r0), 5),
+            np.round(self.vwind, 5),
+            np.round(self.T0, 5),
+            np.round(self.Tstar, 5),
+            np.round(self.alpha_gas, 5),
+        ) 
+        return hashlib.md5("|".join(map(str, items)).encode()).hexdigest()
+
+    @auto_refresh
+    def isoAGB_los_extinction(self,r_los,AGB_params,partial_alignment=False):
+        """Compute the extinction along the line-of-sight at location on POS:r_los from the center
+
+        Args:
+            r_los (float, cm): The location on the POS of the line-of-sight from the center
+            AGB_params (dict): A dictionary of AGB parameters
+            AGB_params = {
+                        'Mloss':     x, # mass loss rate in Msun/yr
+                        'Tstar':     x, # stellar temperature in K
+                        'Rstar':     x, # stellar radius in Rsun
+                        'vwind':     x, # wind velocity in km/s
+                        'T0':        x, # gas temperature at r0 in K (define gas temperature profile, Tram et al. 2020)
+                        'r0':        x, # reference radius in au (define gas temperature profile, Tram et al. 2020)
+                        'alpha_gas': x, # power-law index for gas temperature profile (Tram et al. 2020)
+                        'rin':       x,# inner radius of the dusty envelope in au (where dust starts to form)
+                        'rout':      x, # outer radius of the dusty envelope in au
+                        'points':    200, # number of points from rin --> rout in the radial direction
+                        'sampling_type': 'log_space' # sampling type for the radial grid (linear or log)
+                        }
+            partial_alignment (bool, optional): Whether to use partial alignment. 
+                                                Defaults to False: extinction for randomly oriented grains. 
+                                                If True, the extinction is calculated for partially aligned non-spherical grains.
+
+        Returns:
+            wavelength (micron)
+            extinction (Alambda/Av) along the line of sight defined by r_los
+        
+        Example usage:
+            #Oxygen-rich AGB star: IK Tau
+            
+            from DustPOL_py import DustPOL, constants
+
+            Rstar_CM = 3.1e13
+            AU = constants.au
+            RSUN = constants.Rsun
+
+            # precompute common conversions once
+            Rstar_rsun = Rstar_CM / RSUN
+            r0_au = 5.20 * Rstar_CM / AU
+            rin_au = 8.7 * Rstar_CM / AU
+            rout_au = 2e4 * Rstar_CM / AU
+
+            ## execute DustPOL_py with general paramers: on/off RAT-D, dusty type, grain size distribution and shape
+            exe = DustPOL('input_template.dustpol',ratd=True, amax=0.25e-4,dust_type='sil',alpha=0.3333)
+
+            ## Define the AGB star parameters in a dictionary
+            IK_params = {
+                        'Mloss': 4.5e-6, # mass loss rate in Msun/yr
+                        'Tstar':2100, # stellar temperature in K
+                        'Rstar':Rstar_rsun, # stellar radius in Rsun
+                        'vwind': 24.0,  # wind velocity in km/s
+                        'T0': 707, # gas temperature at r0 in K -- define gas temperature (Tram et al. 2020)
+                        'r0': r0_au, # reference radius in au -- define gas temperature (Tram et al. 2020)
+                        'alpha_gas': 0.79, # power-law index for gas temperature profile (Tram et al. 2020)
+                        'rin': rin_au, # inner radius of the envelop in au (where dust starts to form)
+                        'rout': rout_au, # outer radius of the envelope in au
+                        'points':200,
+                        'sampling_type': 'log_space' # sampling type for the radial grid (linear or log)
+                        }
+            ## compute the extinction along the line of sight at r_los=100 au from the center of the AGB star
+            wavelength, extinction = exe.isoAGB_los_extinction(r_los=100*AU, AGB_params=IK_params, partial_alignment=True)
+
+            ## plot the extinction curve
+            fig, ax = plt.subplots()
+            ax.loglog(wavelength, extinction, 'k-', label='Extinction Curve')
+            ax.set_xlabel('Wavelength (um)')
+            ax.set_ylabel('Extinction $(A_{\\lambda}/A_{\\rm V})$')
+            ax.set_title('Extinction Curve for AGB Star')
+            ax.legend()
+        """
+        # initialization
+        self.__init__(self.input_params_file,**self.kwargs) ##reset the initial parameters
+        a_init       = self.a.copy()        ##hard copy of the initial grain size
+        
+        # get the AGB star parameters
+        if not isinstance(AGB_params,dict):
+            raise ValueError("AGB_params must be a dictionary")
+
+        # debug log for mass loss rate
+        Mloss = AGB_params.get('Mloss',None)  # mass loss rate in Msun/yr
+        if Mloss is None:
+            raise ValueError("AGB_params must include 'Mloss' (mass loss rate in Msun/yr)")
+        self.Mloss = Mloss
+        
+        # debug log for stellar temperature
+        Tstar = AGB_params.get('Tstar',None) # stellar temperature in K
+        if Tstar is None:
+            raise ValueError("AGB_params must include 'Tstar' (stellar temperature in K)")
+        self.Tstar = Tstar
+        
+        # debug log for stellar radius
+        Rstar = AGB_params.get('Rstar',None) # stellar radius in Rsun
+        if Rstar is None:
+            raise ValueError("AGB_params must include 'Rstar' (stellar radius in Rsun)")
+        self.Rstar = Rstar * constants.Rsun  # convert Rsun
+        
+        # debug log for wind velocity
+        vwind = AGB_params.get('vwind',None)  # wind velocity in km/s
+        if vwind is None:
+            raise ValueError("AGB_params must include 'vwind' (wind velocity in km/s)")
+        self.vwind = vwind*1e5 # convert km/s to cm/s 
+
+        # debug log for gas temperature at distance r0
+        T0   = AGB_params.get('T0',None)  # gas temperature at the inner radius in K
+        if T0 is None:
+            raise ValueError("AGB_params must include 'T0' (gas temperature at the inner radius in K)")
+        self.T0 = T0
+
+        # debug log for reference radius for the gas temperature profile
+        r0  = AGB_params.get('r0',None)  # reference radius for the gas temperature profile in au
+        if r0 is None:
+            raise ValueError("AGB_params must include 'r0' (reference radius in au)")
+        self.r0 = r0 * constants.au  # convert au to cm
+
+        # debug log for power-law index of the gas temperature profile
+        alpha_gas = AGB_params.get('alpha_gas',None)  # power-law index for the gas temperature profile
+        if alpha_gas is None:
+            raise ValueError("AGB_params must include 'alpha_gas' (power-law index for the gas temperature profile)")
+        self.alpha_gas = alpha_gas
+
+        # debug log for inner radius of the dusty envelope
+        rin   = AGB_params.get('rin',None)
+        if rin is None:
+            raise ValueError("AGB_params must include 'rin' (inner radius in au)")
+        self.rin = rin * constants.au  # convert au to cm
+
+        # debug log for outer radius of the dusty envelope
+        rout  = AGB_params.get('rout',None)
+        if rout is None:
+            raise ValueError("AGB_params must include 'rout' (outer radius in au)")
+        self.rout = rout * constants.au  # convert au to cm
+
+        # debug log for number of points in the radial direction
+        points = AGB_params.get('points',None)  # number of points in the radial direction
+        if points is None:
+            raise ValueError("AGB_params must include 'points' (number of points from rin --> rout in the radial direction)")
+        self.points = int(points)
+
+        # debug log for sampling type in the radial direction
+        sampling_type = AGB_params.get('sampling_type','log')  # sampling type in the radial direction (log or linear)
+        if sampling_type not in ['lin_space', 'log_space']:
+            raise ValueError("AGB_params 'sampling_type' must be either 'lin_space' or 'log_space'")
+        self.sampling_type = sampling_type
+        
+        # call the isoAGB_profile to get the radial profiles of the AGB envelope
+        isoAGB_exe = isoAGB_class.isoAGB_profile()
+        coords,rr=isoAGB_exe.isoAGB_model(self)
+        _,_,z_=coords; max_radius = rr.max()
+        dr = rr[1:]-rr[:-1] # incremental step in the radial direction
+        dz  = z_[1:]-z_[:-1] # incremental step in the z direction along the los
+
+        # prepare cache dictionary for dtau
+        if not hasattr(self, '_dtau_cache'):
+            self._dtau_cache = {}
+        cache_key = self._dtau_cache_key(rr, partial_alignment)
+        
+        # check if the local optical depth (dtau) for the given parameters is already computed and cached
+        if cache_key in self._dtau_cache:
+            log.info('Using cached local optical depth (dtau) for the given parameters.')
+            cache = self._dtau_cache[cache_key]
+            tau_local = cache['tau_local']
+            f_tau_local = cache['interp']
+        else:
+            log.info('Computing local optical depth (dtau) for the given parameters...')
+            printProgressBar(0, len(rr), prefix = '  -> Progress:', suffix = 'Complete', length = 30)
+
+            # Loop over the radial direction
+            tau_local = np.zeros((len(rr),len(self.w))) # local optical depth at each radius <<-- used to compute the los extinction curve
+            tau = np.zeros_like(self.w) # initial optical depth
+            for i,r in enumerate(rr):
+                # unattenuated radiation field and mean wavelength at current radius r
+                # note that tau=0 at rin, so the initial radiation field is unattenuated
+                self.U, self.mean_lam = isoAGB_exe.radiation_center2cell(r,tau=tau)
+    
+                # get the gas temperature and dust temperature at current radius r
+                self.Tgas  = isoAGB_exe.Tgas_AGB(r)
+                self.Tdust = isoAGB_exe.Tdust_AGB(r)
+                
+                # checking whether RAT-D occurs
+                lmin = np.searchsorted(a_init, self.amin)
+                lmax = np.searchsorted(a_init, min(self.amax, disrupt.radiative_disruption(self).a_disrupt(a_init))) if self.ratd else np.searchsorted(a_init, self.amax + 0.1 * self.amax)
+                a_check  = a_init[lmin:lmax+1]
+                    
+                # print(' -> a.max=%.3f (micron), a_init.max = %.3f (micron)'%(a_check.max()*1e4,a_init.max()*1e4))
+                if a_check.max() < a_init.max():
+
+                    # ------- Initialization wavelength, grain size from the file  ------- 
+                    self.get_grainsize_wavelength() ## -->> wavelength (self.w) and grain size (self.a)
+            
+                    # ------- Update grain size (if RAT-D occurs)  ------- 
+                    self.update_grain_size(self.a,verbose=False) ## -->> update self.a
+
+                    # ------- Update grain-size distribution -------
+                    self.grain_size_distribution()  # update self.a -->> update self.dnda
+
+                    # ------- Update Qext,Qabs,Qpol and Qpol_abs -------
+                    self.get_coefficients_data() ## self.a -->> self.Qdata
+                # ftau = interp1d(self.w, tau, axis=0, bounds_error=False, fill_value='extrapolate')
+                # print('  -> r=%.3e (au), mean_lam=%.3f (um), U=%.2e, Tgas=%.3f, tau_V=%.3e, amax=%.3f (um)'%(r/constants.au, self.mean_lam*1e4,self.U,self.Tgas,ftau(0.55e-4),self.a.max()*1e4))
+
+                # get the optical depth at the next radial point due to the previous point (i.e., the attenuation of the radiation field)
+                dtau = isoAGB_exe.optical_depth_local(self,r,f_align=partial_alignment)
+                # fdtau = interp1d(self.w, dtau, axis=0, bounds_error=False, fill_value='extrapolate')
+                tau_local[i,:] = dtau if i>0 else np.zeros_like(self.w) # no attenuation at the inner radius
+                if i<len(rr)-1:
+                    tau  = tau + dtau*dr[i]
+                else: ## reach out the surface of the AGB envelope, no more attenuation
+                    pass
+                # Reset grain state and Q* in O(1) by restoring snapshots
+                self._restore_initial_grain_state()
+                self._restore_initial_Qcoeffs()
+            
+                printProgressBar(i+1, len(rr), prefix = '  -> Progress:', suffix = 'Complete', length = 30)
+
+            ##loop over z_ along a single LOS
+            ## interpolate the local optical depth at each radius
+            f_tau_local = interp1d(rr, tau_local, axis=0, bounds_error=False, fill_value='extrapolate')
+            self._dtau_cache[cache_key] = {'tau_local': tau_local, 'interp': f_tau_local}  # cache the local optical depth and its interpolator for future use
+
+
+        # compute the optical depth along the line of sight by integrating the local optical depth at each point along the los defined by r_los
+        dtau_local = np.zeros((len(z_),len(self.w)))
+        for j in range(len(z_)):
+            r_compute=np.sqrt(z_[j]*z_[j]+r_los*r_los)
+            if (r_compute>max_radius):
+                dtau_local[j,:] = np.zeros_like(self.w) # no attenuation outside the envelope
+            else:
+                # interpolate the local optical depth at the current radius to get the optical depth along the line of sight
+                dtau_local[j,:] = f_tau_local(r_compute)
+                # tau_los_V = f_tau_local(r_compute)[np.searchsorted(self.w, 0.55e-4)] # get the optical depth at V band (0.55 micron) along the line of sight
+                # print('  -> z=%.3e (au), r=%.3e (au), tau_V=%.3e'%(z_[j]/constants.au, r_compute/constants.au, tau_los_V))
+                                    
+        # integrate the optical depth along the line of sight to get the total optical depth
+        dtau_local = np.clip(dtau_local, 0.0, None) # ensure non-negative optical depth
+        tau_los = integrate.simpson(dtau_local, z_, axis=0)
+        #the above integration may produce negative values -- NOT YET understood the reason!!!
+        tau_los = abs(tau_los)
+        
+        # convert the optical depth to extinction in magnitudes
+        Alambda_los = 1.086 * tau_los 
+        
+        # normalize the extinction curve to Av at V band (0.55 micron)
+        AV_los = interp1d(self.w, Alambda_los, axis=0, bounds_error=False, fill_value='extrapolate')(0.55e-4) # get the extinction at V band (0.55 micron)
+        extinction_curve_los = Alambda_los / AV_los if AV_los > 0 else np.zeros_like(Alambda_los) # get the extinction curve along the line of sight normalized to AV
+        
+        # remove the extinction curve at wavelength shorter than 0.1 micron
+        iddx = np.where(self.w<0.1e-4)
+        trimed_extinction_curve_los = np.delete(extinction_curve_los, iddx)
+        trimed_wavelength = np.delete(self.w, iddx)
+        
+        # return the wavelength in micron and the extinction curve along the line of sight
+        return trimed_wavelength*1e4,trimed_extinction_curve_los
+
     @auto_refresh
     def sdist_info_to_print(self):
 

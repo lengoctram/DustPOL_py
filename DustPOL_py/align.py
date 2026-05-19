@@ -176,21 +176,17 @@ class alignment_class():
     def __init__(self,parent):
         self.u_ISRF = parent.u_ISRF 
         self.rho=parent.rho
-        # self.amin = parent.amin
-        # self.amax = parent.amax
         self.gamma= parent.gamma
         self.RATalign=parent.RATalign
         self.Tgas = parent.Tgas
-        # self.Tdust = parent.Tdust
         self.ngas = parent.ngas
         self.mean_lam=parent.mean_lam
         self.U=parent.U
         self.rho=parent.rho
         self.alpha = parent.alpha
-        self.f_min = getattr(parent, "f_min", None) #self.f_min = parent.f_min
+        self.f_min = getattr(parent, "f_min", None)
         if self.f_min is None:
             self.alpha_DG = parent.alpha_DG
-            self.temp_ratio = parent.temp_ratio
         self.f_max = parent.f_max
         self.a = parent.a
         self.Bfield = parent.Bfield
@@ -200,7 +196,8 @@ class alignment_class():
         self.align_func = parent.align_func
         self.pstiff = parent.pstiff
         self.verbose = getattr(parent, "verbose", False)#parent.verbose
-
+        self.Tdust = 16.4* self.U**(1./6) * (self.a/1.e-5)**(-1./15)
+        
     def Aligned_Size_v2(self):
         # a_new = logspace(log10(self.amin), log10(5.e-4), 1500) # [cm]: recreate an arbitrary smooth grain-size array
         a_new = logspace(log10(3.e-8), log10(5.e-4), 10000) # [cm]: recreate an arbitrary smooth grain-size array
@@ -231,13 +228,13 @@ class alignment_class():
             if self.f_min is None:
                 #For the moment, we assume that Trot = Tgas (thermal rotation of grain)
                 # Tdust = 16.4#self.Tdust * pow(self.a/1e-5,-1./15)
-                #Bfield =5.e-6#Bfield_nH(self.ngas) * 1e-6 # convert to G  
+                # self.Bfield = Bfield_nH(self.ngas) * 1e-6 # convert to G  
                 if self.alpha > 1.0:
-                    f_min = paramagnetic_relax.compute_R(self.a,1./self.alpha,self.rho,self.Bfield,self.ngas,self.Tgas,self.Tgas/self.temp_ratio,self.alpha_DG,spm=True,Ncl=self.Ncl,phi_sp=self.phi_sp)
+                    f_min = paramagnetic_relax.compute_R(self.a,1./self.alpha,self.rho,self.Bfield,self.ngas,self.Tgas,self.Tdust,self.alpha_DG,spm=True,Ncl=self.Ncl,phi_sp=self.phi_sp)
+                    # f_min = paramagnetic_relax.compute_R(self.a,1./self.alpha,self.rho,self.Bfield,self.ngas,self.Tgas,self.Tgas/self.temp_ratio,self.alpha_DG,spm=True,Ncl=self.Ncl,phi_sp=self.phi_sp)
                 else:
-                    f_min = paramagnetic_relax.compute_R(self.a,self.alpha,self.rho,self.Bfield,self.ngas,self.Tgas,self.Tgas/self.temp_ratio,self.alpha_DG,spm=True,Ncl=self.Ncl,phi_sp=self.phi_sp)
-                # f_min[self.a >= a_ali] = 0.0
-
+                    f_min = paramagnetic_relax.compute_R(self.a,self.alpha,self.rho,self.Bfield,self.ngas,self.Tgas,self.Tdust,self.alpha_DG,spm=True,Ncl=self.Ncl,phi_sp=self.phi_sp)
+                    # f_min = paramagnetic_relax.compute_R(self.a,self.alpha,self.rho,self.Bfield,self.ngas,self.Tgas,self.Tgas/self.temp_ratio,self.alpha_DG,spm=True,Ncl=self.Ncl,phi_sp=self.phi_sp)
             else:
                 f_min = self.f_min
                     
