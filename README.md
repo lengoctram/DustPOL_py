@@ -16,10 +16,12 @@ DustPOL_py computes multi-wavelength polarization of starlight absorption and th
 - Multiple grain compositions: silicate, graphite, PAH and astrodust, and their combinations.
 - Multiple grain size distributions: MRN, WD01, HD23
 
-Manuals and GUI (not yet updated)
+### Manuals and GUI (not yet updated)
 - Docs: https://lengoctram.github.io/DustPOL-website/
 - Web GUI: https://dustpol-py.streamlit.app
 
+### Examples 
+- Python scripts are provided in the examples/ folder
 
 ## Installation
 ** It is recommended to use a virtual environment to prevent conflicts with existing Python packages. **
