@@ -2,8 +2,8 @@
 title: "DustPOL_py: a numerical modeling for linear dust polarization"
 ---
 
-## DustPOL_py - numerical modelling - v1.8
-DustPOL_py computes multi-wavelength polarization of starlight absorption and thermal dust emission based on:
+## DustPOL-py - numerical modelling - v1.8
+DustPOL-py computes multi-wavelength polarization of starlight absorption and thermal dust emission based on:
 - Radiative Torque alignment (RAT-A)
 - Magnetically enhanced RAT (MRAT)
 - Radiative Torque Disruption (RAT-D)
@@ -11,7 +11,6 @@ DustPOL_py computes multi-wavelength polarization of starlight absorption and th
 
 Features
 - Polarization spectra for diffuse ISM, molecular clouds, dense cores, protostars (POS and LOS).
-- Wavelength coverage: from far-UV to near-/mid-/far-IR and to submm bands
 - Built-in analysis and plotting routines.
 - High-performance computation (ProcessPoolExecutor or joblib), with fallbacks.
 - Flexible parameter overrides via code for fitting workflows.
@@ -25,51 +24,29 @@ Manuals and GUI (not yet updated)
 
 ## Installation
 ** It is recommended to use a virtual environment to prevent conflicts with existing Python packages. **
-
 0- Silicon chip
-  ```bash  
   conda create -n DustPOL_py
   conda activate DustPOL_py
   conda config --env --set subdir osx-arm64
-  conda install python=3.12 (and other libraries)
-  ```
-
+  conda install python=3.12, numpy, matplotlib, ...
 0- Intel chip
-  ```bash
   conda create -n DustPOL_py
   conda activate DustPOL_py
   conda config --env --set subdir osx-64
-  conda install python=3.12 (and other libraries)
-  ```
+  conda install python=3.12, numpy, matplotlib, ...
 
 1- Download the source files
-
-  - Clone:
-  
-    ```git clone https://github.com/lengoctram/DustPOL_py.git```
-
-  - Or Download directly from github
+- Clone: git clone https://github.com/lengoctram/DustPOL-py.git
 
 2- Go to the directory
-
-        cd DustPOL_py-main
+- cd DustPOL-py
 
 3- From the terminal, type
-
-  - recommended (if ```make``` works)
-    
+    recommended:  
         make install
-
-  - Note (to un-install)
-  
-        make clean 
-    
-  - or
-    
+    or
         pip install .
-
-  - or
-     
+    or 
         pip install -e .
 
 ## Authors
@@ -100,7 +77,7 @@ Pham N. Diep, Nguyen B. Ngoc, Bao Truong, Ngan Lê
 Please reach out to us at <nle@strw.leidenuniv.nl>
 
 macOS multiprocessing notes
-- On macOS, Python might use “spawn”. Interactive IPython/Jupyter sessions may fail with ProcessPoolExecutor due to __main__.__spec__=None.
+- On macOS (Ventura/Sonoma), Python uses “spawn”. Interactive IPython/Jupyter sessions may fail with ProcessPoolExecutor due to __main__.__spec__=None.
 - Solutions:
   - Run scripts as modules (python examples/4-2-basic_model_protostar_POS.py) under a main guard.
   - In interactive environments, the library can fallback to joblib backend='loky'.
