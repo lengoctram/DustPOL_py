@@ -67,7 +67,7 @@ Manuals and GUI (not yet updated)
         pip install -e .
         
 ## Authors
-**Le Ngoc Tram**, Hyeseung Lee, and Thiem Hoang
+**<ins> Le Ngoc Tram** </ins>, Hyeseung Lee, and Thiem Hoang
 
 ## Contributors
 Pham N. Diep, Nguyen B. Ngoc, Bao Truong, Ngan Lê
