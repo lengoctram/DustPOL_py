@@ -35,27 +35,42 @@ Manuals and GUI (not yet updated)
   ```
 
 0- Intel chip
+  ```
   conda create -n DustPOL_py
   conda activate DustPOL_py
   conda config --env --set subdir osx-64
   conda install python=3.12, numpy, matplotlib, ...
+  ```
 
 1- Download the source files
-- Clone: git clone https://github.com/lengoctram/DustPOL_py.git
+  ```
+  Clone: git clone https://github.com/lengoctram/DustPOL_py.git
+  ```
 
 2- Go to the directory
-- cd DustPOL_py
+  ```
+  cd DustPOL_py
+  ```
 
 3- From the terminal, type
-    recommended:  
-        make install
-    or
-        pip install .
-    or 
-        pip install -e .
 
+    recommended:  
+        ```
+        make install
+        ```
+        
+    or
+        ```
+        pip install .
+        ```
+        
+    or 
+        ```
+        pip install -e .
+        ```
+        
 ## Authors
-```Le Ngoc Tram```, Hyeseung Lee, and Thiem Hoang
+**Le Ngoc Tram**, Hyeseung Lee, and Thiem Hoang
 
 ## Contributors
 Pham N. Diep, Nguyen B. Ngoc, Bao Truong, Ngan Lê
@@ -82,9 +97,13 @@ Pham N. Diep, Nguyen B. Ngoc, Bao Truong, Ngan Lê
 Please reach out to us at <nle@strw.leidenuniv.nl>
 
 macOS multiprocessing notes
+
 - On macOS (Ventura/Sonoma), Python uses “spawn”. Interactive IPython/Jupyter sessions may fail with ProcessPoolExecutor due to __main__.__spec__=None.
+
 - Solutions:
+  
   - Run scripts as modules (python examples/4-2-basic_model_protostar_POS.py) under a main guard.
+
   - In interactive environments, the library can fallback to joblib backend='loky'.
 
 ## More information and citations
