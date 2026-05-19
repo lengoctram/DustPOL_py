@@ -30,7 +30,7 @@ IK_params = {
     'sampling_type': 'log_space' # sampling type for the radial grid (linear or log)
 }
 
-r_los = 1000*AU # line of sight distance from the star (0 means directly towards the star)
+r_los = 0*AU # line of sight distance from the star (0 means directly towards the star)
 wum, ext_curve = exe.isoAGB_los_extinction(
                                 r_los=r_los, 
                                 AGB_params=IK_params, 
