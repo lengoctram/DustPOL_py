@@ -1,6 +1,4 @@
----
-title: "DustPOL_py: a numerical modeling for linear dust polarization"
----
+# DustPOL_py: a numerical modeling for linear dust polarization
 
 ## DustPOL_py - numerical modelling - v1.8
 DustPOL_py computes multi-wavelength polarization of starlight absorption and thermal dust emission based on:
