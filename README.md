@@ -10,6 +10,7 @@ DustPOL_py computes multi-wavelength polarization of starlight absorption and th
 - Paramagnetic relaxation alignment (DG)
 
 Features
+- Extinction curve through the envelop of an evolved star (AGB or RSG).
 - Polarization spectra for diffuse ISM, molecular clouds, dense cores, protostars (POS and LOS).
 - Built-in analysis and plotting routines.
 - High-performance computation (ProcessPoolExecutor or joblib), with fallbacks.
