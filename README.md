@@ -49,25 +49,24 @@ Manuals and GUI (not yet updated)
 
 2- Go to the directory
   ```
-  cd DustPOL_py
+  cd DustPOL_py-main
   ```
 
 3- From the terminal, type
 
     recommended:  
-        ```
+    
         make install
-        ```
+        
         
     or
-        ```
+        
         pip install .
-        ```
+        
         
     or 
-        ```
+        
         pip install -e .
-        ```
         
 ## Authors
 **Le Ngoc Tram**, Hyeseung Lee, and Thiem Hoang
