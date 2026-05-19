@@ -2,8 +2,8 @@
 title: "DustPOL_py: a numerical modeling for linear dust polarization"
 ---
 
-## DustPOL-py - numerical modelling - v1.8
-DustPOL-py computes multi-wavelength polarization of starlight absorption and thermal dust emission based on:
+## DustPOL_py - numerical modelling - v1.8
+DustPOL_py computes multi-wavelength polarization of starlight absorption and thermal dust emission based on:
 - Radiative Torque alignment (RAT-A)
 - Magnetically enhanced RAT (MRAT)
 - Radiative Torque Disruption (RAT-D)
@@ -36,10 +36,10 @@ Manuals and GUI (not yet updated)
   conda install python=3.12, numpy, matplotlib, ...
 
 1- Download the source files
-- Clone: git clone https://github.com/lengoctram/DustPOL-py.git
+- Clone: git clone https://github.com/lengoctram/DustPOL_py.git
 
 2- Go to the directory
-- cd DustPOL-py
+- cd DustPOL_py
 
 3- From the terminal, type
     recommended:  
