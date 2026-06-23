@@ -1990,25 +1990,37 @@ class DustPOL:
                 # print('  -> z=%.3e (au), r=%.3e (au), tau_V=%.3e'%(z_[j]/constants.au, r_compute/constants.au, tau_los_V))
                                     
         # integrate the optical depth along the line of sight to get the total optical depth
-        dtau_local = np.clip(dtau_local, 0.0, None) # ensure non-negative optical depth
-        tau_los = integrate.simpson(dtau_local, z_, axis=0)
-        #the above integration may produce negative values -- NOT YET understood the reason!!!
-        tau_los = abs(tau_los)
+        if len(z_) < 2:
+            tau_los = np.zeros(len(self.w))
+        else:
+            if not np.all(np.diff(z_) > 0):
+                order = np.argsort(z_)
+                z_sorted = z_[order]
+                dtau_local = dtau_local[order, :]
+            else:
+                z_sorted = z_
+
+            dz = np.diff(z_sorted)                   # shape (nz-1,)
+            left = dtau_local[:-1, :]                # shape (nz-1, nw)
+            right = dtau_local[1:, :]                # shape (nz-1, nw)
+            integrand = 0.5 * (left + right) * dz[:, None]  # broadcast dz to (nz-1, nw)
+            tau_los = integrand.sum(axis=0)          # shape (nw,)
+        tau_los = abs(tau_los)  # ensure non-negative optical depth
         
         # convert the optical depth to extinction in magnitudes
         Alambda_los = 1.086 * tau_los 
         
-        # normalize the extinction curve to Av at V band (0.55 micron)
-        AV_los = interp1d(self.w, Alambda_los, axis=0, bounds_error=False, fill_value='extrapolate')(0.55e-4) # get the extinction at V band (0.55 micron)
-        extinction_curve_los = Alambda_los / AV_los if AV_los > 0 else np.zeros_like(Alambda_los) # get the extinction curve along the line of sight normalized to AV
-        
-        # remove the extinction curve at wavelength shorter than 0.1 micron
+        # remove the extinction curve at wavelength shorter than 0.1 micron and longer than 1e3 micron,
         iddx = np.where(self.w<0.1e-4)
-        trimed_extinction_curve_los = np.delete(extinction_curve_los, iddx)
+        trimed_Alambda_los = np.delete(Alambda_los, iddx)
         trimed_wavelength = np.delete(self.w, iddx)
+
+        iddx = np.where(trimed_wavelength>1e3*1e-4)
+        trimed_Alambda_los = np.delete(trimed_Alambda_los, iddx)
+        trimed_wavelength = np.delete(trimed_wavelength, iddx)
         
         # return the wavelength in micron and the extinction curve along the line of sight
-        return trimed_wavelength*1e4,trimed_extinction_curve_los
+        return trimed_wavelength*1e4,trimed_Alambda_los
 
     @auto_refresh
     def sdist_info_to_print(self):

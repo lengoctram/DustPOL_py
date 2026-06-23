@@ -36,6 +36,9 @@ wum, ext_curve = exe.isoAGB_los_extinction(
                                 AGB_params=IK_params, 
                                 partial_alignment=True
                                 )
+AV = ext_curve[np.argmin(np.abs(wum - 0.55))] # extinction at V band (0.55 micron)
+ext_curve /= AV # normalize the extinction curve by AV
+
 fig = plt.figure(1)
 ax = fig.gca()
 ax.loglog(wum, ext_curve, '-', label=f'line-of-sight: {r_los/AU:.0f} au from center')
