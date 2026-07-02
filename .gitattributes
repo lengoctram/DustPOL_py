@@ -1,2 +1,14 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Primary language
+*.py linguist-language=Python
+
+# Exclude editor and generated artifacts
+.vscode/** linguist-generated=true
+build/** linguist-generated=true
+dist/** linguist-generated=true
+
+# Ignore ReScript files if present
+*.res linguist-generated=true
+*.rei linguist-generated=true
