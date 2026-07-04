@@ -1,7 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib
 from DustPOL_py import DustPOL, constants
 from scipy.interpolate import interp1d
+matplotlib.rcParams['font.weight'] = 'normal'
 
 Rstar_CM = 3.1e13
 AU = constants.au
