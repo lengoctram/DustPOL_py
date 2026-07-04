@@ -1,5 +1,7 @@
 import matplotlib.pyplot as plt
 import os
+import matplotlib
+matplotlib.rcParams['font.weight'] = 'normal'
 from DustPOL_py import DustPOL, tools
 
 #### NOTE: IT MUST BE RUN WITH "IF __NAME__ == '__MAIN__':" 
