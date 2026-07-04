@@ -1,5 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.rcParams['font.weight'] = 'normal'
 from DustPOL_py import DustPOL
 from scipy.interpolate import interp1d
 
