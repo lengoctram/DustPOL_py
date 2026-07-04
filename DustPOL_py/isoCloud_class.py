@@ -395,23 +395,54 @@ class isoCloud_profile(object):
                 i+=1
         return self.wavelength_map
 
+    # @auto_refresh
+    # def Av_2calcule(self,n0,Rflat,p,Rv=4.0):
+    #     """
+    #         This function to calculate the Av from the cloud's surface to the core
+    #         This function to returns the Av for radiation attenuation.
+    #         *** Note: this Av is differ from the observed Av. ONLY works for self.p>1
+    #         input:
+    #             - n0: peaked gas density
+    #             - rflat: below which ngas=n0=const.
+    #             - Rv: total-to-selective extinction ratio.
+    #                   If NA, Rv=4.0 
+    #     """
+    #     # def Av_inward_ana(r,p,n0,Rflat):
+    #     #p=2.0#3./2
+    #     # r_ratio = r/Rflat
+    #     Av_c = 10.3*(n0/1e8)*(Rflat/(10.*constants.au))*(Rv/4.0)
+    #     return lambda r: np.where(r<=Rflat, Av_c*(p/(p-1)-r/Rflat), Av_c/(p-1)*pow(r/Rflat,1-p))
+
     @auto_refresh
-    def Av_2calcule(self,n0,Rflat,p,Rv=4.0):
+    def Av_2calcule(self, n0, Rv=4.0):
         """
-            This function to calculate the Av from the cloud's surface to the core
-            This function to returns the Av for radiation attenuation.
-            *** Note: this Av is differ from the observed Av.
-            input:
-                - n0: peaked gas density
-                - rflat: below which ngas=n0=const.
-                - Rv: total-to-selective extinction ratio.
-                      If NA, Rv=4.0 
+            Computes visual extinction (Av) from the surface (r_max) down to radius r.
+            It works for any power-law index p, including p <= 1, and accounts for the flat core region (r < rflat).
         """
-        # def Av_inward_ana(r,p,n0,Rflat):
-        #p=2.0#3./2
-        # r_ratio = r/Rflat
-        Av_c = 10.3*(n0/1e8)*(Rflat/(10.*constants.au))*(Rv/4.0)
-        return lambda r: np.where(r<=Rflat, Av_c*(p/(p-1)-r/Rflat), Av_c/(p-1)*pow(r/Rflat,1-p))
+        def av_func(r):
+            r = np.atleast_1d(r)
+
+            # 1. Compute the column density component from r_max down to r_flat (or r, whichever is larger)
+            # We need this limit to prevent integrating past the flat boundary
+            r_outer_limit = np.maximum(r, self.rflat)
+
+            if np.isclose(self.p, 1.0):
+                N_envelope = n0 * self.rflat * np.log(self.rout / r_outer_limit)
+            else:
+                N_envelope = (n0 * (self.rflat**self.p) / (1.0 - self.p)) * (self.rout**(1.0 - self.p) - r_outer_limit**(1.0 - self.p))
+
+            # 2. Compute the column density component inside the flat core (only applies if r < rflat)
+            N_core = np.where(r < self.rflat, n0 * (self.rflat - r), 0.0)
+
+            # Total accumulated column density
+            N_total = N_envelope + N_core
+
+            # 3. Convert column density to visual extinction (Standard Interstellar Ratio)
+            # Note: Ensure your spatial units (r, rflat, r_max) match your density units (e.g., cm and cm^-3)
+            Av = N_total * Rv / 5.8e21
+
+            return Av
+        return av_func
 
     @auto_refresh
     def ngas_starless(self,n0,Rflat,p):
