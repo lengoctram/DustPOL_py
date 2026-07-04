@@ -414,7 +414,7 @@ class isoCloud_profile(object):
     #     return lambda r: np.where(r<=Rflat, Av_c*(p/(p-1)-r/Rflat), Av_c/(p-1)*pow(r/Rflat,1-p))
 
     @auto_refresh
-    def Av_2calcule(self, n0, Rv=4.0):
+    def Av_2calcule(self,n0,Rflat,p,Rv=4.0):
         """
             Computes visual extinction (Av) from the surface (r_max) down to radius r.
             It works for any power-law index p, including p <= 1, and accounts for the flat core region (r < rflat).
@@ -424,15 +424,15 @@ class isoCloud_profile(object):
 
             # 1. Compute the column density component from r_max down to r_flat (or r, whichever is larger)
             # We need this limit to prevent integrating past the flat boundary
-            r_outer_limit = np.maximum(r, self.rflat)
+            r_outer_limit = np.maximum(r, Rflat)
 
-            if np.isclose(self.p, 1.0):
-                N_envelope = n0 * self.rflat * np.log(self.rout / r_outer_limit)
+            if np.isclose(p, 1.0):
+                N_envelope = n0 * Rflat * np.log(self.rout / r_outer_limit)
             else:
-                N_envelope = (n0 * (self.rflat**self.p) / (1.0 - self.p)) * (self.rout**(1.0 - self.p) - r_outer_limit**(1.0 - self.p))
+                N_envelope = (n0 * (Rflat**p) / (1.0 - p)) * (self.rout**(1.0 - p) - r_outer_limit**(1.0 - p))
 
             # 2. Compute the column density component inside the flat core (only applies if r < rflat)
-            N_core = np.where(r < self.rflat, n0 * (self.rflat - r), 0.0)
+            N_core = np.where(r < Rflat, n0 * (Rflat - r), 0.0)
 
             # Total accumulated column density
             N_total = N_envelope + N_core
