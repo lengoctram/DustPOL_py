@@ -1,4 +1,6 @@
 import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.rcParams['font.weight'] = 'normal'
 from DustPOL_py import DustPOL, constants
 
 ## SET THE INPUT PARAMETERS FOR THE MODEL
