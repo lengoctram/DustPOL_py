@@ -3,10 +3,12 @@
 
 import numpy as np 
 import matplotlib.pyplot as plt
+import matplotlib
 import sys
 from joblib import Parallel, delayed#, Memory
 from matplotlib.colors import LogNorm
 from astropy import constants
+matplotlib.rcParams['font.weight'] = 'normal'
 pc = constants.pc.cgs.value
 
 from DustPOL_py import DustPOL, isoProtostar_profile
